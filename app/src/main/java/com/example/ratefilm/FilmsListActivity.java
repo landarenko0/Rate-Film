@@ -38,6 +38,7 @@ public class FilmsListActivity extends AppCompatActivity {
     private static final String BASE_URL = "https://kinopoiskapiunofficial.tech";
     private DatabaseReference database;
     private ArrayList<FilmToDB> films;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,6 +110,7 @@ public class FilmsListActivity extends AppCompatActivity {
     private void init() {
         binding = FilmListLayoutBinding.inflate(getLayoutInflater());
         database = FirebaseDatabase.getInstance().getReference();
+        recyclerView = binding.rvFilmsList;
         films = new ArrayList<>();
     }
 
@@ -121,24 +123,14 @@ public class FilmsListActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
-                        int i = 0;
-
                         for (DataSnapshot snapshot : task.getResult().getChildren()) {
                             FilmToDB film = snapshot.getValue(FilmToDB.class);
 
                             films.add(film);
-
-                            DownloadPoster thread = new DownloadPoster(i++);
-                            thread.start();
-
-                            try {
-                                thread.join();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
                         }
 
-                        RecyclerView recyclerView = binding.rvFilmsList;
+                        DownloadPoster thread = new DownloadPoster();
+                        thread.start();
 
                         FilmsListAdapter adapter = new FilmsListAdapter(films, FilmsListActivity.this);
                         recyclerView.setAdapter(adapter);
@@ -150,25 +142,33 @@ public class FilmsListActivity extends AppCompatActivity {
     }
 
     private class DownloadPoster extends Thread {
-        private final FilmToDB film;
-
-        public DownloadPoster(int index) {
-            film = films.get(index);
-        }
-
         @Override
         public void run() {
             super.run();
 
-            try {
-                URL url = new URL(film.getPosterUrl());
-                InputStream stream = (InputStream) url.getContent();
+            for (int i = 0; i < films.size(); i++) {
+                FilmToDB film = films.get(i);
 
-                if (stream != null) {
-                    film.setBitmap(BitmapFactory.decodeStream(stream));
+                try {
+                    URL url = new URL(film.getPosterUrl());
+                    InputStream stream = (InputStream) url.getContent();
+
+                    if (stream != null) {
+                        film.setBitmap(BitmapFactory.decodeStream(stream));
+
+                        assert recyclerView.getAdapter() != null;
+
+                        int finalI = i;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.getAdapter().notifyItemChanged(finalI);
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
     }
