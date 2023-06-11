@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="type_login_password">Чтобы войти, введите E-mail и пароль</string>
+    <string name="login_hint">Введите E-mail</string>
+    <string name="password_hint">Введите пароль</string>
+    <string name="no_account">Нет аккаунта? Зарегистрируйтесь!</string>
+    <string name="registration">Регистрация</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="enter">Войти</string>
+</resources>

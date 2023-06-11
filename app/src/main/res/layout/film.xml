@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/poster_image"
+        android:layout_width="match_parent"
+        android:layout_height="178dp"
+        android:contentDescription="@string/poster_description"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_light_normal_background" />
+
+    <TextView
+        android:id="@+id/film_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="30dp"
+        android:textAlignment="center"
+        android:textColor="@color/grey" />
+
+</LinearLayout>

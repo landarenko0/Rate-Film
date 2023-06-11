@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "709027683434",
+    "project_id": "rate-film",
+    "storage_bucket": "rate-film.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:709027683434:android:1ce96158ea1ddf1dc8be13",
+        "android_client_info": {
+          "package_name": "com.example.ratefilm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "709027683434-3u4654g4alb1o3v3sh05vocgup8gdtlo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLjOoigV846aYgzXpkyFw5nQl6K_rtnZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "709027683434-3u4654g4alb1o3v3sh05vocgup8gdtlo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
