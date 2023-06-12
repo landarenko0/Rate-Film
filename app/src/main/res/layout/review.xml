@@ -16,6 +16,7 @@
             android:layout_weight="1"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
+            android:paddingBottom="20dp"
             android:textColor="@color/black" />
 
         <TextView
@@ -23,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingBottom="20dp"
             android:textColor="@color/black" />
     </LinearLayout>
 
@@ -32,5 +34,6 @@
         android:layout_height="wrap_content"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
         android:textColor="@color/black" />
 </LinearLayout>
