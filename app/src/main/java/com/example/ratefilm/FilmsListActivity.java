@@ -129,12 +129,12 @@ public class FilmsListActivity extends AppCompatActivity {
                             films.add(film);
                         }
 
-                        DownloadPoster thread = new DownloadPoster();
-                        thread.start();
-
                         FilmsListAdapter adapter = new FilmsListAdapter(films, FilmsListActivity.this);
                         recyclerView.setAdapter(adapter);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                        DownloadPoster thread = new DownloadPoster();
+                        thread.start();
                     }
                 }
             });
