@@ -18,10 +18,12 @@ import java.util.List;
 public class FilmsListAdapter extends RecyclerView.Adapter<FilmsListAdapter.ViewHolder> {
 
     private final List<FilmToDB> films;
+    private final User user;
     private final Context parentContext;
 
-    public FilmsListAdapter(List<FilmToDB> films, Context parentContext) {
+    public FilmsListAdapter(List<FilmToDB> films, User user, Context parentContext) {
         this.films = films;
+        this.user = user;
         this.parentContext = parentContext;
     }
 
@@ -76,8 +78,10 @@ public class FilmsListAdapter extends RecyclerView.Adapter<FilmsListAdapter.View
 
             Gson gson = new Gson();
             String filmJson = gson.toJson(film);
+            String userJson = gson.toJson(user);
 
             intent.putExtra("filmJson", filmJson);
+            intent.putExtra("userJson", userJson);
 
             parentContext.startActivity(intent);
         }

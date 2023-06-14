@@ -29,20 +29,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+
         init();
-
-        setContentView(binding.getRoot());
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
             showFilmsList();
         }
+
+        setContentView(binding.getRoot());
     }
 
     private void init() {
