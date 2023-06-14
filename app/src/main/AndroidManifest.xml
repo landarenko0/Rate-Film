@@ -26,6 +26,8 @@
         <activity android:name=".Registration"/>
         <activity android:name=".FilmsListActivity"/>
         <activity android:name=".FilmDetailsActivity"/>
+        <activity android:name=".AddReviewActivity"/>
+        <activity android:name=".SearchActivity"/>
     </application>
 
 </manifest>
