@@ -4,41 +4,39 @@ import android.graphics.Bitmap;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class FilmToDB implements Serializable {
+public class FilmToDB {
     @SerializedName("id")
     private int id;
     @SerializedName("description")
     private String description;
-    @SerializedName("nameEn")
-    private String nameEn;
+    @SerializedName("nameOriginal")
+    private String nameOriginal;
     @SerializedName("nameRu")
     private String nameRu;
     @SerializedName("posterUrl")
     private String posterUrl;
     @SerializedName("rating")
     private float rating;
-    @SerializedName("reviewsCount")
-    private int reviewsCount;
     @SerializedName("reviews")
-    private List<Review> reviews;
+    private HashMap<String, Review> reviews = new HashMap<>();
     private Bitmap bitmap;
 
     public FilmToDB() {
 
     }
 
-    public FilmToDB(int id, String description, String nameEn, String nameRu, String posterUrl, float rating, int reviewsCount, List<Review> reviews) {
+    public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl, float rating, HashMap<String, Review> reviews) {
         this.id = id;
         this.description = description;
-        this.nameEn = nameEn;
+        this.nameOriginal = nameOriginal;
         this.nameRu = nameRu;
         this.posterUrl = posterUrl;
         this.rating = rating;
-        this.reviewsCount = reviewsCount;
-        this.reviews = reviews;
+        if (reviews != null) this.reviews = reviews;
     }
 
     public int getId() {
@@ -57,12 +55,12 @@ public class FilmToDB implements Serializable {
         this.description = description;
     }
 
-    public String getNameEn() {
-        return nameEn;
+    public String getNameOriginal() {
+        return nameOriginal;
     }
 
-    public void setNameEn(String nameEn) {
-        this.nameEn = nameEn;
+    public void setNameOriginal(String nameOriginal) {
+        this.nameOriginal = nameOriginal;
     }
 
     public String getNameRu() {
@@ -89,19 +87,15 @@ public class FilmToDB implements Serializable {
         this.rating = rating;
     }
 
-    public int getReviewsCount() {
-        return reviewsCount;
-    }
-
-    public void setReviewsCount(int reviewsCount) {
-        this.reviewsCount = reviewsCount;
-    }
-
-    public List<Review> getReviews() {
+    public HashMap<String, Review> getReviews() {
         return reviews;
     }
 
-    public void setReviews(List<Review> reviews) {
+    public List<Review> getReviewsList() {
+        return new ArrayList<>(reviews.values());
+    }
+
+    public void setReviews(HashMap<String, Review> reviews) {
         this.reviews = reviews;
     }
 
@@ -111,5 +105,13 @@ public class FilmToDB implements Serializable {
 
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
+    }
+
+    public void addReview(String userName, Review review) {
+        reviews.put(userName, review);
+    }
+
+    public void deleteReview(Review review) {
+        reviews.remove(review);
     }
 }

@@ -1,11 +1,13 @@
 package com.example.ratefilm;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class User {
-    private List<Review> reviews;
+    private HashMap<String, Review> reviews = new HashMap<>();
     private String username;
-    private List<FilmToDB> likedFilms;
+    private List<FilmToDB> likedFilms = new ArrayList<>();
 
     public User() {
 
@@ -15,25 +17,17 @@ public class User {
         this.username = username;
     }
 
-    public User(List<Review> reviews) {
+    public User(HashMap<String, Review> reviews) {
         this.reviews = reviews;
     }
 
-    public List<Review> getReviews() {
-        return reviews;
+    public void addReview(String userName, Review review) {
+        reviews.put(userName, review);
     }
 
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void addReview(Review review) {
-        reviews.add(review);
-    }
-
-    public void deleteReview(Review review) {
-        reviews.remove(review);
-    }
+//    public void deleteReview(Review review) {
+//        reviews.remove(review);
+//    }
 
     public String getUsername() {
         return username;
@@ -49,5 +43,13 @@ public class User {
 
     public void setLikedFilms(List<FilmToDB> likedFilms) {
         this.likedFilms = likedFilms;
+    }
+
+    public HashMap<String, Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(HashMap<String, Review> reviews) {
+        this.reviews = reviews;
     }
 }
