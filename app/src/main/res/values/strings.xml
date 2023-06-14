@@ -1,7 +1,14 @@
 <resources>
     <string name="app_name">Rate Film</string>
     <string name="poster_description">Постер фильма</string>
-    <string name="search">Поиск</string>
+    <string name="search_hint">Поиск</string>
     <string name="film_rating">Рейтинг:</string>
     <string name="reviews">Отзывы:</string>
+    <string name="your_review_hint">Ваш отзыв:</string>
+    <string name="text_review_hint">Опишите Ваши впечатления от фильма</string>
+    <string name="rate_film">Оцените фильм</string>
+    <string name="save">Сохранить</string>
+    <string name="fantasy">Фантастика</string>
+    <string name="action">Боевики</string>
+    <string name="thriller">Триллеры</string>
 </resources>
