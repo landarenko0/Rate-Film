@@ -119,9 +119,7 @@ public class AddReviewActivity extends AppCompatActivity {
             super.run();
 
             database.child("Users").child(currentUserName).child("reviews").child(film.getNameOriginal()).setValue(review);
-            database.child("Films").child(film.getNameOriginal()).child("reviews").child(currentUserName).setValue(review);
-
-            // TODO: Добавить изменение средней оценки фильма
+            database.child("Films").child("Other").child(film.getNameOriginal()).child(currentUserName).setValue(review);
         }
     }
 }
