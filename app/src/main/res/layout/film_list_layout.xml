@@ -70,6 +70,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/fantasy"
             android:textColor="@color/black"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sv_search" />
 
@@ -81,6 +82,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/action"
             android:textColor="@color/black"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rv_fantasy_films" />
 
@@ -92,6 +94,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/thriller"
             android:textColor="@color/black"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rv_action_films" />
 

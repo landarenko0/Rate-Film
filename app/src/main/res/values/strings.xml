@@ -11,4 +11,5 @@
     <string name="fantasy">Фантастика</string>
     <string name="action">Боевики</string>
     <string name="thriller">Триллеры</string>
+    <string name="loading">Загрузка…</string>
 </resources>
