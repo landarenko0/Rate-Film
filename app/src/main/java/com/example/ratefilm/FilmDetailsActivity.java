@@ -8,6 +8,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,12 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.databinding.FilmDetailsBinding;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FilmDetailsActivity extends AppCompatActivity {
 
@@ -34,6 +42,9 @@ public class FilmDetailsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private User user;
     private Review userReview;
+    private DatabaseReference database;
+    private List<Review> reviews;
+    private boolean reviewsLoaded = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +60,13 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
     private void init() {
         binding = FilmDetailsBinding.inflate(getLayoutInflater());
+
+        reviews = new ArrayList<>();
+
+        database = FirebaseDatabase.getInstance().getReference();
+
+        DownloadFilmReviewsThread thread = new DownloadFilmReviewsThread();
+        thread.start();
 
         Gson gson = new Gson();
 
@@ -68,7 +86,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
         currentUserReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toCreateReviewActivity();
+                if (reviewsLoaded) toCreateReviewActivity();
             }
         });
     }
@@ -84,10 +102,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
         filmName.setText(film.getNameRu());
         filmDescription.setText(film.getDescription());
 
-        rating.setText(film.getRating() == 0f ? "Нет оценок" : String.valueOf(film.getRating()));
-
-        currentUserReview.setText(hasCurrentUserLeftReview() ? "Редактировать отзыв" : "Добавить отзыв");
-
         ReviewListAdapter adapter = new ReviewListAdapter(film.getReviewsList());
 
         recyclerView.setAdapter(adapter);
@@ -96,8 +110,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
     private boolean hasCurrentUserLeftReview() {
         String username = user.getUsername();
-
-        List<Review> reviews = film.getReviewsList();
 
         for (int i = 0; i < reviews.size(); i++) {
             Review review = reviews.get(i);
@@ -145,6 +157,67 @@ public class FilmDetailsActivity extends AppCompatActivity {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    class DownloadFilmReviewsThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+
+            database.child("Films").child("Other").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DataSnapshot snapshot = task.getResult();
+
+                        if (snapshot.hasChild(film.getNameOriginal())) {
+                            snapshot = snapshot.child(film.getNameOriginal());
+
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                Review review = dataSnapshot.getValue(Review.class);
+
+                                reviews.add(review);
+                            }
+                        }
+
+                        ReviewListAdapter adapter = new ReviewListAdapter(reviews);
+                        recyclerView.setAdapter(adapter);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                        if (reviews.size() == 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    rating.setText("Нет оценок");
+                                }
+                            });
+                        } else {
+                            float sum = 0f;
+
+                            for (Review review : reviews) {
+                                sum += review.getRating();
+                            }
+
+                            float finalSum = sum;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    rating.setText(String.format(Locale.US, "%.1f", finalSum/reviews.size()));
+                                }
+                            });
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                currentUserReview.setText(hasCurrentUserLeftReview() ? "Редактировать отзыв" : "Добавить отзыв");
+                                reviewsLoaded = true;
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 }
