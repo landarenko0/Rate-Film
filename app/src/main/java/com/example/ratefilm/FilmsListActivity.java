@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.databinding.FilmListLayoutBinding;
-import com.example.ratefilm.databinding.SearchLayoutBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -120,6 +119,8 @@ public class FilmsListActivity extends AppCompatActivity {
                     FilmToDB film = new FilmToDB(keywordFilm.getFilmId(), keywordFilm.getDescription(), keywordFilm.getNameEn(), keywordFilm.getNameRu(), keywordFilm.getPosterUrl(),
                             0f, null);
 
+                    if (film.getNameOriginal() == null) film.setNameOriginal(film.getNameRu());
+
                     filmsList.add(film);
                 }
 
@@ -170,7 +171,7 @@ public class FilmsListActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Films").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            database.child("Films").child("Fantasy").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
@@ -178,14 +179,53 @@ public class FilmsListActivity extends AppCompatActivity {
                             FilmToDB film = snapshot.getValue(FilmToDB.class);
 
                             fantasyFilms.add(film);
-                            //database.child("Films").child(film.getNameOriginal()).setValue(film);
                         }
 
                         FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, user, FilmsListActivity.this);
                         fantasyRecyclerView.setAdapter(adapter);
                         fantasyRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
-                        DownloadPoster thread = new DownloadPoster();
+                        DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, fantasyRecyclerView);
+                        thread.start();
+                    }
+                }
+            });
+
+            database.child("Films").child("Action").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                            FilmToDB film = snapshot.getValue(FilmToDB.class);
+
+                            actionFilms.add(film);
+                        }
+
+                        FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, user, FilmsListActivity.this);
+                        actionRecyclerView.setAdapter(adapter);
+                        actionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+                        DownloadPosterThread thread = new DownloadPosterThread(actionFilms, actionRecyclerView);
+                        thread.start();
+                    }
+                }
+            });
+
+            database.child("Films").child("Thriller").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                            FilmToDB film = snapshot.getValue(FilmToDB.class);
+
+                            thrillerFilms.add(film);
+                        }
+
+                        FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, user, FilmsListActivity.this);
+                        thrillerRecyclerView.setAdapter(adapter);
+                        thrillerRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+                        DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, thrillerRecyclerView);
                         thread.start();
                     }
                 }
@@ -193,13 +233,22 @@ public class FilmsListActivity extends AppCompatActivity {
         }
     }
 
-    private class DownloadPoster extends Thread {
+    private class DownloadPosterThread extends Thread {
+
+        private final List<FilmToDB> films;
+        private final RecyclerView recyclerView;
+
+        public DownloadPosterThread(List<FilmToDB> films, RecyclerView recyclerView) {
+            this.films = films;
+            this.recyclerView = recyclerView;
+        }
+
         @Override
         public void run() {
             super.run();
 
-            for (int i = 0; i < fantasyFilms.size(); i++) {
-                FilmToDB film = fantasyFilms.get(i);
+            for (int i = 0; i < films.size(); i++) {
+                FilmToDB film = films.get(i);
 
                 try {
                     URL url = new URL(film.getPosterUrl());
@@ -208,13 +257,13 @@ public class FilmsListActivity extends AppCompatActivity {
                     if (stream != null) {
                         film.setBitmap(BitmapFactory.decodeStream(stream));
 
-                        assert fantasyRecyclerView.getAdapter() != null;
+                        assert recyclerView.getAdapter() != null;
 
                         int finalI = i;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                fantasyRecyclerView.getAdapter().notifyItemChanged(finalI);
+                                recyclerView.getAdapter().notifyItemChanged(finalI);
                             }
                         });
                     }
