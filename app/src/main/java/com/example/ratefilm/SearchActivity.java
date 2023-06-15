@@ -50,7 +50,7 @@ public class SearchActivity extends AppCompatActivity {
         user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
         recyclerView = binding.requestFilms;
 
-        FilmsListAdapter adapter = new FilmsListAdapter(films, user, this);
+        SearchAdapter adapter = new SearchAdapter(films, user, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
