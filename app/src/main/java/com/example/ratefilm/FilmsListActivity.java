@@ -3,6 +3,8 @@ package com.example.ratefilm;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ratefilm.databinding.FilmListLayoutBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -93,6 +96,36 @@ public class FilmsListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String s) {
                 return false;
+            }
+        });
+
+        binding.navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.item_account) {
+                    Intent intent = new Intent(FilmsListActivity.this, AccountActivity.class);
+
+                    intent.putExtra("userJson", gson.toJson(user));
+
+                    startActivity(intent);
+
+                    binding.drawer.close();
+                } else {
+                    FirebaseAuth.getInstance().signOut();
+
+                    binding.drawer.close();
+
+                    finish();
+                }
+
+                return true;
+            }
+        });
+
+        binding.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.drawer.open();
             }
         });
 

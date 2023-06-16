@@ -28,6 +28,7 @@
         <activity android:name=".FilmDetailsActivity"/>
         <activity android:name=".AddReviewActivity"/>
         <activity android:name=".SearchActivity"/>
+        <activity android:name=".AccountActivity"/>
     </application>
 
 </manifest>
