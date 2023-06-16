@@ -7,14 +7,16 @@ import java.util.List;
 public class User {
     private HashMap<String, Review> reviews = new HashMap<>();
     private String username;
+    private String email;
     private List<FilmToDB> likedFilms = new ArrayList<>();
 
     public User() {
 
     }
 
-    public User(String username) {
+    public User(String username, String email) {
         this.username = username;
+        this.email = email;
     }
 
     public User(HashMap<String, Review> reviews) {
@@ -51,5 +53,13 @@ public class User {
 
     public void setReviews(HashMap<String, Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

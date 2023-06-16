@@ -74,7 +74,7 @@ public class Registration extends AppCompatActivity {
                     mAuth.createUserWithEmailAndPassword(login, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
-                            User user = new User(username);
+                            User user = new User(username, login);
 
                             String[] tmp = login.split("@");
 
