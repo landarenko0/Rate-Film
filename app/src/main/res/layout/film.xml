@@ -18,6 +18,7 @@
         android:id="@+id/film_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxWidth="150dp"
         android:paddingTop="10dp"
         android:paddingBottom="30dp"
         android:textAlignment="center"
