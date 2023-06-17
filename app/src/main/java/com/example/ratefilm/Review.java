@@ -4,17 +4,17 @@ public class Review {
     private String review;
     private float rating;
     private String username;
-    private String filmName;
+    private FilmToDB film;
 
     public Review() {
 
     }
 
-    public Review(String review, float rating, String filmName, String username) {
+    public Review(String review, float rating, String username, FilmToDB film) {
         this.review = review;
         this.rating = rating;
-        this.filmName = filmName;
         this.username = username;
+        this.film = film;
     }
 
     public String getReview() {
@@ -33,27 +33,19 @@ public class Review {
         this.rating = rating;
     }
 
-//    public User getUser() {
-//        return user;
-//    }
-
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
-
-    public String getFilmName() {
-        return filmName;
-    }
-
-    public void setFilmName(String filmName) {
-        this.filmName = filmName;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public FilmToDB getFilm() {
+        return film;
+    }
+
+    public void setFilm(FilmToDB film) {
+        this.film = film;
     }
 }
