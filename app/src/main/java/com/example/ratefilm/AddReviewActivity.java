@@ -89,10 +89,9 @@ public class AddReviewActivity extends AppCompatActivity {
 
         User user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
-        Review newReview = new Review(reviewText, ratingBar.getRating(), film.getNameOriginal(), user.getUsername());
+        film.setBitmap(null);
 
-        user.addReview(currentUserName, newReview);
-        film.addReview(currentUserName, newReview);
+        Review newReview = new Review(reviewText, ratingBar.getRating(), user.getUsername(), film);
 
         PublishReviewThread thread = new PublishReviewThread(newReview);
         thread.start();
@@ -100,7 +99,7 @@ public class AddReviewActivity extends AppCompatActivity {
         Intent intent = new Intent(AddReviewActivity.this, FilmDetailsActivity.class);
 
         intent.putExtra("userJson", gson.toJson(user));
-        intent.putExtra("filmJson", gson.toJson(film));
+        intent.putExtra("filmJson", getIntent().getStringExtra("filmJson"));
 
         startActivity(intent);
 

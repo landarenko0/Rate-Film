@@ -4,10 +4,6 @@ import android.graphics.Bitmap;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class FilmToDB {
     @SerializedName("id")
     private int id;
@@ -21,22 +17,19 @@ public class FilmToDB {
     private String posterUrl;
     @SerializedName("rating")
     private float rating;
-    @SerializedName("reviews")
-    private HashMap<String, Review> reviews = new HashMap<>();
     private Bitmap bitmap;
 
     public FilmToDB() {
 
     }
 
-    public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl, float rating, HashMap<String, Review> reviews) {
+    public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl, float rating) {
         this.id = id;
         this.description = description;
         this.nameOriginal = nameOriginal;
         this.nameRu = nameRu;
         this.posterUrl = posterUrl;
         this.rating = rating;
-        if (reviews != null) this.reviews = reviews;
     }
 
     public int getId() {
@@ -87,31 +80,11 @@ public class FilmToDB {
         this.rating = rating;
     }
 
-    public HashMap<String, Review> getReviews() {
-        return reviews;
-    }
-
-    public List<Review> getReviewsList() {
-        return new ArrayList<>(reviews.values());
-    }
-
-    public void setReviews(HashMap<String, Review> reviews) {
-        this.reviews = reviews;
-    }
-
     public Bitmap getBitmap() {
         return bitmap;
     }
 
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
-    }
-
-    public void addReview(String userName, Review review) {
-        reviews.put(userName, review);
-    }
-
-    public void deleteReview(Review review) {
-        reviews.remove(review);
     }
 }

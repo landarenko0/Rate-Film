@@ -150,7 +150,7 @@ public class FilmsListActivity extends AppCompatActivity {
 
                 for (FilmsByKeyword keywordFilm : responseFilms) {
                     FilmToDB film = new FilmToDB(keywordFilm.getFilmId(), keywordFilm.getDescription(), keywordFilm.getNameEn(), keywordFilm.getNameRu(), keywordFilm.getPosterUrl(),
-                            0f, null);
+                            0f);
 
                     if (film.getNameOriginal() == null) film.setNameOriginal(film.getNameRu());
 

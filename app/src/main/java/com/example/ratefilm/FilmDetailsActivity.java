@@ -101,11 +101,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
         filmName.setText(film.getNameRu());
         filmDescription.setText(film.getDescription());
-
-        ReviewListAdapter adapter = new ReviewListAdapter(film.getReviewsList());
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private boolean hasCurrentUserLeftReview() {
