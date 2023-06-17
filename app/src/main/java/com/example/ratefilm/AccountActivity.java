@@ -2,8 +2,8 @@ package com.example.ratefilm;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,7 +67,7 @@ public class AccountActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child("likedFilms").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
@@ -89,14 +89,18 @@ public class AccountActivity extends AppCompatActivity {
                 }
             });
 
-            database.child("Users").child("filmsWithReview").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
                         DataSnapshot snapshot = task.getResult();
 
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            FilmToDB film = dataSnapshot.getValue(FilmToDB.class);
+                            Review review = dataSnapshot.getValue(Review.class);
+
+                            assert review != null;
+
+                            FilmToDB film = review.getFilm();
 
                             filmsWithReview.add(film);
                         }
@@ -148,7 +152,7 @@ public class AccountActivity extends AppCompatActivity {
                         });
                     }
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Произошла ошибка при загрузке изображения", Toast.LENGTH_LONG).show();
+                    Log.e("poster", "Cannot download film poster");
                 }
             }
         }
