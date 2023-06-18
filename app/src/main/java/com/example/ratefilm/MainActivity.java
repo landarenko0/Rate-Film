@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.ratefilm.databinding.ActivityMainBinding;
@@ -20,8 +19,6 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private EditText login_et;
-    private EditText password_et;
     private FirebaseAuth mAuth;
 
     @Override
@@ -43,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        login_et = binding.login;
-        password_et = binding.password;
+
         mAuth = FirebaseAuth.getInstance();
 
         binding.enter.setOnClickListener(new View.OnClickListener() {
@@ -63,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void tryEnter() {
-        String login = login_et.getText().toString();
-        String password = password_et.getText().toString();
+        String login = binding.login.getText().toString();
+        String password = binding.password.getText().toString();
 
         if (login.equals("") || password.equals("")) {
             Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();

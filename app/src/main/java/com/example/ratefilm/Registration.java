@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,9 +22,6 @@ import com.google.firebase.database.FirebaseDatabase;
 public class Registration extends AppCompatActivity {
 
     private RegistrationBinding binding;
-    private EditText username_et;
-    private EditText login_et;
-    private EditText password_et;
     private FirebaseAuth mAuth;
     private DatabaseReference database;
 
@@ -42,9 +38,6 @@ public class Registration extends AppCompatActivity {
     private void init() {
         binding = RegistrationBinding.inflate(getLayoutInflater());
 
-        username_et = binding.etUsername;
-        login_et = binding.registerLogin;
-        password_et = binding.registerPassword;
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance().getReference();
 
@@ -57,9 +50,9 @@ public class Registration extends AppCompatActivity {
     }
 
     private void register() {
-        String username = username_et.getText().toString();
-        String login = login_et.getText().toString();
-        String password = password_et.getText().toString();
+        String username = binding.etUsername.getText().toString();
+        String login = binding.registerLogin.getText().toString();
+        String password = binding.registerPassword.getText().toString();
 
         if (username.equals("") || login.equals("") || password.equals("")) {
             Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();

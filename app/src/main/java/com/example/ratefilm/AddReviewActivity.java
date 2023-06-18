@@ -3,37 +3,30 @@ package com.example.ratefilm;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.RatingBar;
-import android.widget.TextView;
+import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ratefilm.databinding.AddReviewLayoutBinding;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 public class AddReviewActivity extends AppCompatActivity {
-
-    private TextView filmName_tv;
-    private EditText reviewText_et;
-    private RatingBar ratingBar;
     private AddReviewLayoutBinding binding;
     private Gson gson;
     private Review oldReview;
     private FilmToDB film;
+    private User user;
     private DatabaseReference database;
-    private String currentUserName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         init();
 
         setContentView(binding.getRoot());
@@ -46,15 +39,11 @@ public class AddReviewActivity extends AppCompatActivity {
 
         binding = AddReviewLayoutBinding.inflate(getLayoutInflater());
 
-        filmName_tv = binding.filmNameAddReview;
-        reviewText_et = binding.addReviewText;
-        ratingBar = binding.rating;
-
         oldReview = gson.fromJson(getIntent().getStringExtra("reviewJson"), Review.class);
         film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
+        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
         database = FirebaseDatabase.getInstance().getReference();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         binding.saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,36 +51,31 @@ public class AddReviewActivity extends AppCompatActivity {
                 saveReview();
             }
         });
-
-        assert currentUser != null;
-        assert currentUser.getEmail() != null;
-
-        currentUserName = currentUser.getEmail().split("@")[0];
     }
 
     private void setInformation() {
-        filmName_tv.setText(film.getNameRu());
+        binding.filmNameAddReview.setText(film.getNameRu());
 
         if (oldReview != null) {
-            reviewText_et.setText(oldReview.getReview());
-            ratingBar.setRating(oldReview.getRating());
+            binding.addReviewText.setText(oldReview.getReview());
+            binding.rating.setRating(oldReview.getRating());
         }
     }
 
     private void saveReview() {
-        if (ratingBar.getRating() == 0f) {
+        if (binding.rating.getRating() == 0f) {
             Toast.makeText(this, "Введите оценку фильму", Toast.LENGTH_SHORT).show();
 
             return;
         }
 
-        String reviewText = reviewText_et.getText().toString();
+        String reviewText = binding.addReviewText.getText().toString();
 
         User user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
         film.setBitmap(null);
 
-        Review newReview = new Review(reviewText, ratingBar.getRating(), user.getUsername(), film);
+        Review newReview = new Review(reviewText, binding.rating.getRating(), user.getUsername(), film);
 
         PublishReviewThread thread = new PublishReviewThread(newReview);
         thread.start();
@@ -117,8 +101,8 @@ public class AddReviewActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(currentUserName).child("reviews").child(film.getNameOriginal()).setValue(review);
-            database.child("Films").child("Other").child(film.getNameOriginal()).child(currentUserName).setValue(review);
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).setValue(review);
+            database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).setValue(review);
         }
     }
 }

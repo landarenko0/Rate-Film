@@ -5,14 +5,11 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.databinding.FilmDetailsBinding;
 
@@ -27,24 +24,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class FilmDetailsActivity extends AppCompatActivity {
 
     private FilmDetailsBinding binding;
     private FilmToDB film;
-    private TextView filmName;
-    private TextView filmDescription;
-    private TextView rating;
-    private TextView currentUserReview;
-    private ImageView poster;
-    private RecyclerView recyclerView;
     private User user;
     private Review userReview;
     private DatabaseReference database;
-    private List<Review> reviews;
+    private ArrayList<Review> reviews;
     private boolean reviewsLoaded = false;
+    private Gson gson;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,22 +59,12 @@ public class FilmDetailsActivity extends AppCompatActivity {
         DownloadFilmReviewsThread thread = new DownloadFilmReviewsThread();
         thread.start();
 
-        Gson gson = new Gson();
+        gson = new Gson();
 
-        String filmJson = getIntent().getStringExtra("filmJson");
-        film = gson.fromJson(filmJson, FilmToDB.class);
+        film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
+        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
-        String userJson = getIntent().getStringExtra("userJson");
-        user = gson.fromJson(userJson, User.class);
-
-        filmName = binding.detailsFilmName;
-        filmDescription = binding.detailsFilmDescription;
-        rating = binding.detailsRating;
-        currentUserReview = binding.currentUserReview;
-        poster = binding.detailsPosterImage;
-        recyclerView = binding.rvReviews;
-
-        currentUserReview.setOnClickListener(new View.OnClickListener() {
+        binding.currentUserReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (reviewsLoaded) toCreateReviewActivity();
@@ -96,11 +77,11 @@ public class FilmDetailsActivity extends AppCompatActivity {
             DownloadPosterThread thread = new DownloadPosterThread();
             thread.start();
         } else {
-            poster.setImageBitmap(film.getBitmap());
+            binding.detailsPosterImage.setImageBitmap(film.getBitmap());
         }
 
-        filmName.setText(film.getNameRu());
-        filmDescription.setText(film.getDescription());
+        binding.detailsFilmName.setText(film.getNameRu());
+        binding.detailsFilmDescription.setText(film.getDescription());
     }
 
     private boolean hasCurrentUserLeftReview() {
@@ -121,8 +102,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
     private void toCreateReviewActivity() {
         Intent intent = new Intent(FilmDetailsActivity.this, AddReviewActivity.class);
-
-        Gson gson = new Gson();
 
         intent.putExtra("reviewJson", gson.toJson(userReview));
         intent.putExtra("filmJson", gson.toJson(film));
@@ -145,7 +124,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            poster.setImageBitmap(BitmapFactory.decodeStream(stream));
+                            binding.detailsPosterImage.setImageBitmap(BitmapFactory.decodeStream(stream));
                         }
                     });
                 }
@@ -177,14 +156,14 @@ public class FilmDetailsActivity extends AppCompatActivity {
                         }
 
                         ReviewListAdapter adapter = new ReviewListAdapter(reviews);
-                        recyclerView.setAdapter(adapter);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                        binding.rvReviews.setAdapter(adapter);
+                        binding.rvReviews.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
                         if (reviews.size() == 0) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    rating.setText("Нет оценок");
+                                    binding.detailsRating.setText("Нет оценок");
                                 }
                             });
                         } else {
@@ -198,7 +177,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    rating.setText(String.format(Locale.US, "%.1f", finalSum/reviews.size()));
+                                    binding.detailsRating.setText(String.format(Locale.US, "%.1f", finalSum/reviews.size()));
                                 }
                             });
                         }
@@ -206,7 +185,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                currentUserReview.setText(hasCurrentUserLeftReview() ? "Редактировать отзыв" : "Добавить отзыв");
+                                binding.currentUserReview.setText(hasCurrentUserLeftReview() ? "Редактировать отзыв" : "Добавить отзыв");
                                 reviewsLoaded = true;
                             }
                         });

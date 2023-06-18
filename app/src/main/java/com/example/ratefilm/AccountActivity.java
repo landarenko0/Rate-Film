@@ -1,5 +1,6 @@
 package com.example.ratefilm;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,14 +24,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
-public class AccountActivity extends AppCompatActivity {
+public class AccountActivity extends AppCompatActivity implements RecyclerViewOnClickListener {
 
     private AccountLayoutBinding binding;
     private User user;
     private ArrayList<FilmToDB> likedFilms;
     private ArrayList<FilmToDB> filmsWithReview;
     private DatabaseReference database;
+    private Gson gson;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,12 +56,24 @@ public class AccountActivity extends AppCompatActivity {
         likedFilms = new ArrayList<>();
         filmsWithReview = new ArrayList<>();
 
-        Gson gson = new Gson();
+        gson = new Gson();
 
         user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
         binding.accountUsername.setText(user.getUsername());
         binding.accountEmail.setText(user.getEmail());
+    }
+
+    @Override
+    public void onItemClick(List<FilmToDB> films, int position) {
+        FilmToDB film = films.get(position);
+
+        Intent intent = new Intent(AccountActivity.this, FilmDetailsActivity.class);
+
+        intent.putExtra("filmJson", gson.toJson(film));
+        intent.putExtra("userJson", gson.toJson(user));
+
+        startActivity(intent);
     }
 
     private class DownloadUserLikedFilmsThread extends Thread {
@@ -82,7 +97,7 @@ public class AccountActivity extends AppCompatActivity {
                         DownloadPosterThread thread = new DownloadPosterThread(likedFilms, binding.likedFilms);
                         thread.start();
 
-                        FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, user, AccountActivity.this);
+                        FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, AccountActivity.this);
                         binding.likedFilms.setAdapter(adapter);
                         binding.likedFilms.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
                     }
@@ -108,7 +123,7 @@ public class AccountActivity extends AppCompatActivity {
                         DownloadPosterThread thread = new DownloadPosterThread(filmsWithReview, binding.filmsWithReview);
                         thread.start();
 
-                        FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, user, AccountActivity.this);
+                        FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, AccountActivity.this);
                         binding.filmsWithReview.setAdapter(adapter);
                         binding.filmsWithReview.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
                     }
