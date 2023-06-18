@@ -1,50 +1,40 @@
 package com.example.ratefilm;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
+import com.example.ratefilm.databinding.FilmBinding;
 
 import java.util.List;
 
 public class FilmsListAdapter extends RecyclerView.Adapter<FilmsListAdapter.ViewHolder> {
 
     private final List<FilmToDB> films;
-    private final User user;
-    private final Context parentContext;
+    private final RecyclerViewOnClickListener listener;
 
-    public FilmsListAdapter(List<FilmToDB> films, User user, Context parentContext) {
+    public FilmsListAdapter(List<FilmToDB> films, RecyclerViewOnClickListener listener) {
         this.films = films;
-        this.user = user;
-        this.parentContext = parentContext;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        FilmBinding binding = FilmBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        View view = inflater.inflate(R.layout.film, parent, false);
-
-        return new ViewHolder(view);
+        return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FilmToDB film = films.get(position);
 
-        holder.imageView.setImageBitmap(film.getBitmap());
-        holder.textView.setText(film.getNameRu());
+        holder.binding.posterImage.setImageBitmap(film.getBitmap());
+        holder.binding.filmName.setText(film.getNameRu());
     }
 
     @Override
@@ -52,38 +42,20 @@ public class FilmsListAdapter extends RecyclerView.Adapter<FilmsListAdapter.View
         return films.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
+        private final FilmBinding binding;
 
-        public ImageView imageView;
-        public TextView textView;
+        public ViewHolder(@NonNull FilmBinding binding) {
+            super(binding.getRoot());
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
+            this.binding = binding;
 
-            imageView = itemView.findViewById(R.id.poster_image);
-            textView = itemView.findViewById(R.id.film_name);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showFilmDetails(getAdapterPosition());
+                    listener.onItemClick(films, getAdapterPosition());
                 }
             });
-        }
-
-        private void showFilmDetails(int index) {
-            Intent intent = new Intent(parentContext, FilmDetailsActivity.class);
-
-            FilmToDB film = films.get(index);
-
-            Gson gson = new Gson();
-            String filmJson = gson.toJson(film);
-            String userJson = gson.toJson(user);
-
-            intent.putExtra("filmJson", filmJson);
-            intent.putExtra("userJson", userJson);
-
-            parentContext.startActivity(intent);
         }
     }
 }
