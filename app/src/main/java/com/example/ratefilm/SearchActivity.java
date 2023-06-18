@@ -49,7 +49,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
         binding.requestFilms.setAdapter(adapter);
         binding.requestFilms.setLayoutManager(new LinearLayoutManager(this));
 
-        binding.queryText.setText("Результат поиска по запросу: " + query);
+        binding.queryText.setText(getString(R.string.result_of_search, query));
 
         DownloadPosterThread thread = new DownloadPosterThread();
         thread.start();
@@ -62,7 +62,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
         Intent intent = new Intent(SearchActivity.this, FilmDetailsActivity.class);
 
         intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("uesrJson", getIntent().getStringExtra("userJson"));
+        intent.putExtra("userJson", getIntent().getStringExtra("userJson"));
 
         startActivity(intent);
     }

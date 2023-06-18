@@ -24,6 +24,15 @@ public class FilmToDB {
     public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl) {
         this.id = id;
         this.description = description;
+
+        if (nameOriginal == null) nameOriginal = nameRu;
+
+        nameOriginal = nameOriginal.replace(".", "");
+        nameOriginal = nameOriginal.replace("#", "");
+        nameOriginal = nameOriginal.replace("$", "");
+        nameOriginal = nameOriginal.replace("[", "");
+        nameOriginal = nameOriginal.replace("]", "");
+
         this.nameOriginal = nameOriginal;
         this.nameRu = nameRu;
         this.posterUrl = posterUrl;
@@ -50,6 +59,12 @@ public class FilmToDB {
     }
 
     public void setNameOriginal(String nameOriginal) {
+        nameOriginal = nameOriginal.replace(".", "");
+        nameOriginal = nameOriginal.replace("#", "");
+        nameOriginal = nameOriginal.replace("$", "");
+        nameOriginal = nameOriginal.replace("[", "");
+        nameOriginal = nameOriginal.replace("]", "");
+
         this.nameOriginal = nameOriginal;
     }
 

@@ -18,4 +18,5 @@
     <string name="button_description">Open navigation menu</string>
     <string name="liked_films">Избранное</string>
     <string name="user_left_review">Вы оставили отзыв</string>
+    <string name="result_of_search">Результат поиска по запросу: %1$s</string>
 </resources>

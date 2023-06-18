@@ -56,13 +56,13 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance().getReference();
 
-        DownloadFilmReviewsThread thread = new DownloadFilmReviewsThread();
-        thread.start();
-
         gson = new Gson();
 
         film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
         user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
+
+        DownloadFilmReviewsThread thread = new DownloadFilmReviewsThread();
+        thread.start();
 
         binding.currentUserReview.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -50,6 +50,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
     private ArrayList<FilmToDB> thrillerFilms;
     private User user;
     private Gson gson;
+    private boolean userDownloaded = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,9 +60,6 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
         init();
 
         setContentView(binding.getRoot());
-
-        DownloadThread thread = new DownloadThread();
-        thread.start();
     }
 
     private void init() {
@@ -88,7 +86,8 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
         binding.svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                searchByKeywords(s);
+                if (userDownloaded) searchByKeywords(s);
+                else Toast.makeText(FilmsListActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
 
                 return true;
             }
@@ -145,8 +144,6 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                 for (FilmsByKeyword keywordFilm : responseFilms) {
                     FilmToDB film = new FilmToDB(keywordFilm.getFilmId(), keywordFilm.getDescription(), keywordFilm.getNameEn(), keywordFilm.getNameRu(), keywordFilm.getPosterUrl());
 
-                    if (film.getNameOriginal() == null) film.setNameOriginal(film.getNameRu());
-
                     filmsList.add(film);
                 }
 
@@ -161,13 +158,18 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
             @Override
             public void onFailure(@NonNull Call<FilmSearchResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(), "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FilmsListActivity.this, "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onItemClick(List<FilmToDB> films, int position) {
+        if (!userDownloaded) {
+            Toast.makeText(FilmsListActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         FilmToDB film = films.get(position);
 
         Intent intent = new Intent(FilmsListActivity.this, FilmDetailsActivity.class);
@@ -185,7 +187,6 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             super.run();
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
             assert firebaseUser != null;
             assert firebaseUser.getEmail() != null;
 
@@ -194,6 +195,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
                         user = task.getResult().getValue(User.class);
+                        userDownloaded = true;
                     } else {
                         Toast.makeText(getApplicationContext(), "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
                     }
