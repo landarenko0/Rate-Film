@@ -38,7 +38,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FilmsListActivity extends AppCompatActivity {
+public class FilmsListActivity extends AppCompatActivity implements RecyclerViewOnClickListener {
 
     private FilmListLayoutBinding binding;
     private FilmsService service;
@@ -48,9 +48,6 @@ public class FilmsListActivity extends AppCompatActivity {
     private ArrayList<FilmToDB> fantasyFilms;
     private ArrayList<FilmToDB> actionFilms;
     private ArrayList<FilmToDB> thrillerFilms;
-    private RecyclerView fantasyRecyclerView;
-    private RecyclerView actionRecyclerView;
-    private RecyclerView thrillerRecyclerView;
     private User user;
     private Gson gson;
 
@@ -70,13 +67,16 @@ public class FilmsListActivity extends AppCompatActivity {
     private void init() {
         database = FirebaseDatabase.getInstance().getReference();
 
-        DownloadUser thread = new DownloadUser();
+        gson = new Gson();
+
+        fantasyFilms = new ArrayList<>();
+        actionFilms = new ArrayList<>();
+        thrillerFilms = new ArrayList<>();
+
+        DownloadThread thread = new DownloadThread();
         thread.start();
 
         binding = FilmListLayoutBinding.inflate(getLayoutInflater());
-        fantasyRecyclerView = binding.rvFantasyFilms;
-        actionRecyclerView = binding.rvActionFilms;
-        thrillerRecyclerView = binding.rvThrillerFilms;
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -128,12 +128,6 @@ public class FilmsListActivity extends AppCompatActivity {
                 binding.drawer.open();
             }
         });
-
-        fantasyFilms = new ArrayList<>();
-        actionFilms = new ArrayList<>();
-        thrillerFilms = new ArrayList<>();
-
-        gson = new Gson();
     }
 
     private void searchByKeywords(String keywords) {
@@ -149,8 +143,7 @@ public class FilmsListActivity extends AppCompatActivity {
                 List<FilmToDB> filmsList = new ArrayList<>();
 
                 for (FilmsByKeyword keywordFilm : responseFilms) {
-                    FilmToDB film = new FilmToDB(keywordFilm.getFilmId(), keywordFilm.getDescription(), keywordFilm.getNameEn(), keywordFilm.getNameRu(), keywordFilm.getPosterUrl(),
-                            0f);
+                    FilmToDB film = new FilmToDB(keywordFilm.getFilmId(), keywordFilm.getDescription(), keywordFilm.getNameEn(), keywordFilm.getNameRu(), keywordFilm.getPosterUrl());
 
                     if (film.getNameOriginal() == null) film.setNameOriginal(film.getNameRu());
 
@@ -173,20 +166,30 @@ public class FilmsListActivity extends AppCompatActivity {
         });
     }
 
-    private class DownloadUser extends Thread {
+    @Override
+    public void onItemClick(List<FilmToDB> films, int position) {
+        FilmToDB film = films.get(position);
+
+        Intent intent = new Intent(FilmsListActivity.this, FilmDetailsActivity.class);
+
+        intent.putExtra("filmJson", gson.toJson(film));
+        intent.putExtra("userJson", gson.toJson(user));
+
+        startActivity(intent);
+    }
+
+
+    private class DownloadThread extends Thread {
         @Override
         public void run() {
             super.run();
 
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            assert currentUser != null;
+            assert firebaseUser != null;
+            assert firebaseUser.getEmail() != null;
 
-            String userEmail = currentUser.getEmail();
-
-            assert userEmail != null;
-
-            database.child("Users").child(userEmail.split("@")[0]).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            database.child("Users").child(firebaseUser.getEmail().split("@")[0]).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
@@ -196,13 +199,6 @@ public class FilmsListActivity extends AppCompatActivity {
                     }
                 }
             });
-        }
-    }
-
-    private class DownloadThread extends Thread {
-        @Override
-        public void run() {
-            super.run();
 
             database.child("Films").child("Fantasy").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
@@ -214,11 +210,11 @@ public class FilmsListActivity extends AppCompatActivity {
                             fantasyFilms.add(film);
                         }
 
-                        FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, user, FilmsListActivity.this);
-                        fantasyRecyclerView.setAdapter(adapter);
-                        fantasyRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+                        FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, FilmsListActivity.this);
+                        binding.rvFantasyFilms.setAdapter(adapter);
+                        binding.rvFantasyFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
-                        DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, fantasyRecyclerView);
+                        DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, binding.rvFantasyFilms);
                         thread.start();
                     }
                 }
@@ -234,11 +230,11 @@ public class FilmsListActivity extends AppCompatActivity {
                             actionFilms.add(film);
                         }
 
-                        FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, user, FilmsListActivity.this);
-                        actionRecyclerView.setAdapter(adapter);
-                        actionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+                        FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, FilmsListActivity.this);
+                        binding.rvActionFilms.setAdapter(adapter);
+                        binding.rvActionFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
-                        DownloadPosterThread thread = new DownloadPosterThread(actionFilms, actionRecyclerView);
+                        DownloadPosterThread thread = new DownloadPosterThread(actionFilms, binding.rvActionFilms);
                         thread.start();
                     }
                 }
@@ -254,11 +250,11 @@ public class FilmsListActivity extends AppCompatActivity {
                             thrillerFilms.add(film);
                         }
 
-                        FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, user, FilmsListActivity.this);
-                        thrillerRecyclerView.setAdapter(adapter);
-                        thrillerRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+                        FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, FilmsListActivity.this);
+                        binding.rvThrillerFilms.setAdapter(adapter);
+                        binding.rvThrillerFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
-                        DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, thrillerRecyclerView);
+                        DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, binding.rvThrillerFilms);
                         thread.start();
                     }
                 }
