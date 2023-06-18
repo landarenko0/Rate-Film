@@ -15,21 +15,18 @@ public class FilmToDB {
     private String nameRu;
     @SerializedName("posterUrl")
     private String posterUrl;
-    @SerializedName("rating")
-    private float rating;
     private Bitmap bitmap;
 
     public FilmToDB() {
 
     }
 
-    public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl, float rating) {
+    public FilmToDB(int id, String description, String nameOriginal, String nameRu, String posterUrl) {
         this.id = id;
         this.description = description;
         this.nameOriginal = nameOriginal;
         this.nameRu = nameRu;
         this.posterUrl = posterUrl;
-        this.rating = rating;
     }
 
     public int getId() {
@@ -70,14 +67,6 @@ public class FilmToDB {
 
     public void setPosterUrl(String posterUrl) {
         this.posterUrl = posterUrl;
-    }
-
-    public float getRating() {
-        return rating;
-    }
-
-    public void setRating(float rating) {
-        this.rating = rating;
     }
 
     public Bitmap getBitmap() {
