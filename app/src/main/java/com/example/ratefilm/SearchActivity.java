@@ -1,6 +1,5 @@
 package com.example.ratefilm;
 
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Window;
@@ -8,6 +7,7 @@ import android.view.Window;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.databinding.SearchLayoutBinding;
 import com.google.common.reflect.TypeToken;
@@ -19,11 +19,14 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity implements RecyclerViewOnClickListener {
+public class SearchActivity extends AppCompatActivity {
 
     private SearchLayoutBinding binding;
     private List<FilmToDB> films;
+    private String query;
+    private User user;
     private Gson gson;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,28 +46,18 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
         Type type = new TypeToken<List<FilmToDB>>(){}.getType();
 
         films = gson.fromJson(getIntent().getStringExtra("filmsJson"), type);
-        String query = getIntent().getStringExtra("query");
+        query = getIntent().getStringExtra("query");
+        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
+        recyclerView = binding.requestFilms;
 
-        SearchAdapter adapter = new SearchAdapter(films, SearchActivity.this);
-        binding.requestFilms.setAdapter(adapter);
-        binding.requestFilms.setLayoutManager(new LinearLayoutManager(this));
+        SearchAdapter adapter = new SearchAdapter(films, user, this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         binding.queryText.setText("Результат поиска по запросу: " + query);
 
         DownloadPosterThread thread = new DownloadPosterThread();
         thread.start();
-    }
-
-    @Override
-    public void onItemClick(List<FilmToDB> films, int position) {
-        FilmToDB film = films.get(position);
-
-        Intent intent = new Intent(SearchActivity.this, FilmDetailsActivity.class);
-
-        intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("uesrJson", getIntent().getStringExtra("userJson"));
-
-        startActivity(intent);
     }
 
     private class DownloadPosterThread extends Thread {
@@ -82,13 +75,13 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
                     if (stream != null) {
                         film.setBitmap(BitmapFactory.decodeStream(stream));
 
-                        assert binding.requestFilms.getAdapter() != null;
+                        assert recyclerView.getAdapter() != null;
 
                         int finalI = i;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                binding.requestFilms.getAdapter().notifyItemChanged(finalI);
+                                recyclerView.getAdapter().notifyItemChanged(finalI);
                             }
                         });
                     }
