@@ -102,6 +102,12 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.item_account) {
+                    if (!userDownloaded) {
+                        Toast.makeText(FilmsListActivity.this, "Пожалйуста, подождите", Toast.LENGTH_SHORT).show();
+
+                        return false;
+                    }
+
                     Intent intent = new Intent(FilmsListActivity.this, AccountActivity.class);
 
                     intent.putExtra("userJson", gson.toJson(user));
