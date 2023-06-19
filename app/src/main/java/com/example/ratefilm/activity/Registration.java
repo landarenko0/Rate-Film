@@ -50,6 +50,11 @@ public class Registration extends AppCompatActivity {
             return;
         }
 
+        if (username.contains(".") || username.contains("#") || username.contains("$") || username.contains("[") || username.contains("]")) {
+            Toast.makeText(this, getResources().getText(R.string.invalid_symbols), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         database.child("Users").get().addOnSuccessListener(dataSnapshot -> {
 
             if (!dataSnapshot.hasChild(username)) {
@@ -57,6 +62,12 @@ public class Registration extends AppCompatActivity {
                     User user = new User(username, login);
 
                     String[] tmp = login.split("@");
+
+                    tmp[0] = tmp[0].replace(".", "");
+                    tmp[0] = tmp[0].replace("#", "");
+                    tmp[0] = tmp[0].replace("$", "");
+                    tmp[0] = tmp[0].replace("[", "");
+                    tmp[0] = tmp[0].replace("]", "");
 
                     database.child("Users").child(tmp[0]).setValue(user);
 
