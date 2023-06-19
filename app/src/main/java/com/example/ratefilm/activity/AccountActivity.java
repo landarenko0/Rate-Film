@@ -45,9 +45,6 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
         init();
 
         setContentView(binding.getRoot());
-
-        DownloadUserLikedFilmsThread thread = new DownloadUserLikedFilmsThread();
-        thread.start();
     }
 
     private void init() {
@@ -76,6 +73,17 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
         intent.putExtra("userJson", gson.toJson(user));
 
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        likedFilms.clear();
+        filmsWithReview.clear();
+
+        DownloadUserLikedFilmsThread thread = new DownloadUserLikedFilmsThread();
+        thread.start();
     }
 
     private class DownloadUserLikedFilmsThread extends Thread {

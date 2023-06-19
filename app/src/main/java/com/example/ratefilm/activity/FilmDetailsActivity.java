@@ -1,6 +1,7 @@
 package com.example.ratefilm.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
@@ -137,7 +138,9 @@ public class FilmDetailsActivity extends AppCompatActivity {
                 InputStream stream = (InputStream) url.getContent();
 
                 if (stream != null) {
-                    runOnUiThread(() -> binding.detailsPosterImage.setImageBitmap(BitmapFactory.decodeStream(stream)));
+                    Bitmap bitmap = BitmapFactory.decodeStream(stream);
+
+                    runOnUiThread(() -> binding.detailsPosterImage.setImageBitmap(bitmap));
                 }
             } catch (IOException e) {
                 Log.e("poster", "Cannot download film poster");
