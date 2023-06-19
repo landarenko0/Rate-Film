@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.activity;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -9,6 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.ratefilm.data_response.FilmToDB;
+import com.example.ratefilm.R;
+import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.adapters.SearchAdapter;
 import com.example.ratefilm.databinding.SearchLayoutBinding;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -85,12 +89,7 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
                         assert binding.requestFilms.getAdapter() != null;
 
                         int finalI = i;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                binding.requestFilms.getAdapter().notifyItemChanged(finalI);
-                            }
-                        });
+                        runOnUiThread(() -> binding.requestFilms.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

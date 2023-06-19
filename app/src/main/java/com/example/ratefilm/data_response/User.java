@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.data_response;
 
 public class User {
     private String username;

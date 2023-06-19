@@ -1,4 +1,6 @@
-package com.example.ratefilm;
+package com.example.ratefilm.intefaces;
+
+import com.example.ratefilm.data_response.FilmToDB;
 
 import java.util.List;
 

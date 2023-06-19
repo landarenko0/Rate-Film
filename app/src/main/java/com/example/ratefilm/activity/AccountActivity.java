@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.activity;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -6,15 +6,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ratefilm.data_response.FilmToDB;
+import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.data_response.Review;
+import com.example.ratefilm.data_response.User;
+import com.example.ratefilm.adapters.FilmsListAdapter;
 import com.example.ratefilm.databinding.AccountLayoutBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -82,51 +84,45 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DataSnapshot snapshot = task.getResult();
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DataSnapshot snapshot = task.getResult();
 
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            FilmToDB film = dataSnapshot.getValue(FilmToDB.class);
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        FilmToDB film = dataSnapshot.getValue(FilmToDB.class);
 
-                            likedFilms.add(film);
-                        }
-
-                        DownloadPosterThread thread = new DownloadPosterThread(likedFilms, binding.likedFilms);
-                        thread.start();
-
-                        FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, AccountActivity.this);
-                        binding.likedFilms.setAdapter(adapter);
-                        binding.likedFilms.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                        likedFilms.add(film);
                     }
+
+                    DownloadPosterThread thread = new DownloadPosterThread(likedFilms, binding.likedFilms);
+                    thread.start();
+
+                    FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, AccountActivity.this);
+                    binding.likedFilms.setAdapter(adapter);
+                    binding.likedFilms.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
                 }
             });
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DataSnapshot snapshot = task.getResult();
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DataSnapshot snapshot = task.getResult();
 
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Review review = dataSnapshot.getValue(Review.class);
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Review review = dataSnapshot.getValue(Review.class);
 
-                            assert review != null;
+                        assert review != null;
 
-                            FilmToDB film = review.getFilm();
+                        FilmToDB film = review.getFilm();
 
-                            filmsWithReview.add(film);
-                        }
-
-                        DownloadPosterThread thread = new DownloadPosterThread(filmsWithReview, binding.filmsWithReview);
-                        thread.start();
-
-                        FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, AccountActivity.this);
-                        binding.filmsWithReview.setAdapter(adapter);
-                        binding.filmsWithReview.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                        filmsWithReview.add(film);
                     }
+
+                    DownloadPosterThread thread = new DownloadPosterThread(filmsWithReview, binding.filmsWithReview);
+                    thread.start();
+
+                    FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, AccountActivity.this);
+                    binding.filmsWithReview.setAdapter(adapter);
+                    binding.filmsWithReview.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
                 }
             });
         }
@@ -159,12 +155,7 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
                         assert recyclerView.getAdapter() != null;
 
                         int finalI = i;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                recyclerView.getAdapter().notifyItemChanged(finalI);
-                            }
-                        });
+                        runOnUiThread(() -> recyclerView.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
                     Log.e("poster", "Cannot download film poster");

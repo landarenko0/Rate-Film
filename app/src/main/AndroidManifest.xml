@@ -14,7 +14,7 @@
         android:theme="@style/Theme.RateFilm"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +23,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Registration"/>
-        <activity android:name=".FilmsListActivity"/>
-        <activity android:name=".FilmDetailsActivity"/>
-        <activity android:name=".AddReviewActivity"/>
-        <activity android:name=".SearchActivity"/>
-        <activity android:name=".AccountActivity"/>
+        <activity android:name=".activity.Registration"/>
+        <activity android:name=".activity.FilmsListActivity"/>
+        <activity android:name=".activity.FilmDetailsActivity"/>
+        <activity android:name=".activity.AddReviewActivity"/>
+        <activity android:name=".activity.SearchActivity"/>
+        <activity android:name=".activity.AccountActivity"/>
     </application>
 
 </manifest>

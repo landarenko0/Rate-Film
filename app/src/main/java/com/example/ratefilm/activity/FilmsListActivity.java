@@ -1,10 +1,8 @@
-package com.example.ratefilm;
+package com.example.ratefilm.activity;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -15,10 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ratefilm.data_response.FilmSearchResponse;
+import com.example.ratefilm.data_response.FilmToDB;
+import com.example.ratefilm.data_response.FilmsByKeyword;
+import com.example.ratefilm.intefaces.FilmsService;
+import com.example.ratefilm.R;
+import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.data_response.User;
+import com.example.ratefilm.adapters.FilmsListAdapter;
 import com.example.ratefilm.databinding.FilmListLayoutBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -98,41 +101,33 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             }
         });
 
-        binding.navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.item_account) {
-                    if (!userDownloaded) {
-                        Toast.makeText(FilmsListActivity.this, "Пожалйуста, подождите", Toast.LENGTH_SHORT).show();
+        binding.navigationView.setNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.item_account) {
+                if (!userDownloaded) {
+                    Toast.makeText(FilmsListActivity.this, "Пожалйуста, подождите", Toast.LENGTH_SHORT).show();
 
-                        return false;
-                    }
-
-                    Intent intent = new Intent(FilmsListActivity.this, AccountActivity.class);
-
-                    intent.putExtra("userJson", gson.toJson(user));
-
-                    startActivity(intent);
-
-                    binding.drawer.close();
-                } else {
-                    FirebaseAuth.getInstance().signOut();
-
-                    binding.drawer.close();
-
-                    finish();
+                    return false;
                 }
 
-                return true;
+                Intent intent = new Intent(FilmsListActivity.this, AccountActivity.class);
+
+                intent.putExtra("userJson", gson.toJson(user));
+
+                startActivity(intent);
+
+                binding.drawer.close();
+            } else {
+                FirebaseAuth.getInstance().signOut();
+
+                binding.drawer.close();
+
+                finish();
             }
+
+            return true;
         });
 
-        binding.button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.drawer.open();
-            }
-        });
+        binding.button.setOnClickListener(view -> binding.drawer.open());
     }
 
     private void searchByKeywords(String keywords) {
@@ -196,75 +191,63 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             assert firebaseUser != null;
             assert firebaseUser.getEmail() != null;
 
-            database.child("Users").child(firebaseUser.getEmail().split("@")[0]).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        user = task.getResult().getValue(User.class);
-                        userDownloaded = true;
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
-                    }
+            database.child("Users").child(firebaseUser.getEmail().split("@")[0]).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    user = task.getResult().getValue(User.class);
+                    userDownloaded = true;
+                } else {
+                    Toast.makeText(getApplicationContext(), "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
                 }
             });
 
-            database.child("Films").child("Fantasy").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                            FilmToDB film = snapshot.getValue(FilmToDB.class);
+            database.child("Films").child("Fantasy").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        FilmToDB film = snapshot.getValue(FilmToDB.class);
 
-                            fantasyFilms.add(film);
-                        }
-
-                        FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, FilmsListActivity.this);
-                        binding.rvFantasyFilms.setAdapter(adapter);
-                        binding.rvFantasyFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-
-                        DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, binding.rvFantasyFilms);
-                        thread.start();
+                        fantasyFilms.add(film);
                     }
+
+                    FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, FilmsListActivity.this);
+                    binding.rvFantasyFilms.setAdapter(adapter);
+                    binding.rvFantasyFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+                    DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, binding.rvFantasyFilms);
+                    thread.start();
                 }
             });
 
-            database.child("Films").child("Action").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                            FilmToDB film = snapshot.getValue(FilmToDB.class);
+            database.child("Films").child("Action").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        FilmToDB film = snapshot.getValue(FilmToDB.class);
 
-                            actionFilms.add(film);
-                        }
-
-                        FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, FilmsListActivity.this);
-                        binding.rvActionFilms.setAdapter(adapter);
-                        binding.rvActionFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-
-                        DownloadPosterThread thread = new DownloadPosterThread(actionFilms, binding.rvActionFilms);
-                        thread.start();
+                        actionFilms.add(film);
                     }
+
+                    FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, FilmsListActivity.this);
+                    binding.rvActionFilms.setAdapter(adapter);
+                    binding.rvActionFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+                    DownloadPosterThread thread = new DownloadPosterThread(actionFilms, binding.rvActionFilms);
+                    thread.start();
                 }
             });
 
-            database.child("Films").child("Thriller").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                            FilmToDB film = snapshot.getValue(FilmToDB.class);
+            database.child("Films").child("Thriller").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        FilmToDB film = snapshot.getValue(FilmToDB.class);
 
-                            thrillerFilms.add(film);
-                        }
-
-                        FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, FilmsListActivity.this);
-                        binding.rvThrillerFilms.setAdapter(adapter);
-                        binding.rvThrillerFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-
-                        DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, binding.rvThrillerFilms);
-                        thread.start();
+                        thrillerFilms.add(film);
                     }
+
+                    FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, FilmsListActivity.this);
+                    binding.rvThrillerFilms.setAdapter(adapter);
+                    binding.rvThrillerFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+                    DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, binding.rvThrillerFilms);
+                    thread.start();
                 }
             });
         }
@@ -297,12 +280,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                         assert recyclerView.getAdapter() != null;
 
                         int finalI = i;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                recyclerView.getAdapter().notifyItemChanged(finalI);
-                            }
-                        });
+                        runOnUiThread(() -> recyclerView.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

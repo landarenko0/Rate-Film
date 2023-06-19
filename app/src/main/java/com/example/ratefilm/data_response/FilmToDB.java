@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.data_response;
 
 import android.graphics.Bitmap;
 

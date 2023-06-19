@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.data_response;
 
 public class Film {
     private int kinopoiskId;

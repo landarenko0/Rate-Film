@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ratefilm.data_response.FilmToDB;
+import com.example.ratefilm.data_response.Review;
+import com.example.ratefilm.data_response.User;
 import com.example.ratefilm.databinding.AddReviewLayoutBinding;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,21 +48,11 @@ public class AddReviewActivity extends AppCompatActivity {
 
         if (oldReview == null)  binding.deleteReview.setVisibility(View.GONE);
 
-        binding.deleteReview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteReview();
-            }
-        });
+        binding.deleteReview.setOnClickListener(view -> deleteReview());
 
         database = FirebaseDatabase.getInstance().getReference();
 
-        binding.saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveReview();
-            }
-        });
+        binding.saveBtn.setOnClickListener(view -> saveReview());
     }
 
     private void setInformation() {

@@ -1,12 +1,13 @@
-package com.example.ratefilm;
+package com.example.ratefilm.adapters;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ratefilm.data_response.FilmToDB;
+import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
 import com.example.ratefilm.databinding.SearchFilmBinding;
 
 import java.util.List;
@@ -50,12 +51,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
             this.binding = binding;
 
-            binding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onItemClick(films, getAdapterPosition());
-                }
-            });
+            binding.getRoot().setOnClickListener(view -> listener.onItemClick(films, getAdapterPosition()));
         }
     }
 }

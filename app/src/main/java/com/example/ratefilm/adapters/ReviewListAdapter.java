@@ -1,4 +1,4 @@
-package com.example.ratefilm;
+package com.example.ratefilm.adapters;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ratefilm.data_response.Review;
 import com.example.ratefilm.databinding.ReviewBinding;
 
 import java.util.List;
