@@ -43,6 +43,15 @@ public class AddReviewActivity extends AppCompatActivity {
         film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
         user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
 
+        if (oldReview == null)  binding.deleteReview.setVisibility(View.GONE);
+
+        binding.deleteReview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteReview();
+            }
+        });
+
         database = FirebaseDatabase.getInstance().getReference();
 
         binding.saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +69,13 @@ public class AddReviewActivity extends AppCompatActivity {
             binding.addReviewText.setText(oldReview.getReview());
             binding.rating.setRating(oldReview.getRating());
         }
+    }
+
+    private void deleteReview() {
+        DeleteReviewThread thread = new DeleteReviewThread();
+        thread.start();
+
+        toFilmDetailsActivity();
     }
 
     private void saveReview() {
@@ -80,8 +96,13 @@ public class AddReviewActivity extends AppCompatActivity {
         PublishReviewThread thread = new PublishReviewThread(newReview);
         thread.start();
 
+        toFilmDetailsActivity();
+    }
+
+    private void toFilmDetailsActivity() {
         Intent intent = new Intent(AddReviewActivity.this, FilmDetailsActivity.class);
 
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("userJson", gson.toJson(user));
         intent.putExtra("filmJson", getIntent().getStringExtra("filmJson"));
 
@@ -103,6 +124,21 @@ public class AddReviewActivity extends AppCompatActivity {
 
             database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).setValue(review);
             database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).setValue(review);
+
+            Toast.makeText(getApplicationContext(), "Отзыв успешно добавлен", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    class DeleteReviewThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).removeValue();
+            database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).removeValue();
+
+            Toast.makeText(getApplicationContext(), "Отзыв успешно удалён", Toast.LENGTH_SHORT).show();
+
         }
     }
 }

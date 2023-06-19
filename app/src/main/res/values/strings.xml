@@ -19,4 +19,5 @@
     <string name="liked_films">Избранное</string>
     <string name="user_left_review">Вы оставили отзыв</string>
     <string name="result_of_search">Результат поиска по запросу: %1$s</string>
+    <string name="delete_review">Удалить отзыв</string>
 </resources>
