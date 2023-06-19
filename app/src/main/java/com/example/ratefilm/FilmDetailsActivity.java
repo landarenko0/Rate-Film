@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +36,8 @@ public class FilmDetailsActivity extends AppCompatActivity {
     private DatabaseReference database;
     private ArrayList<Review> reviews;
     private boolean reviewsLoaded = false;
+    private boolean likedFilm = false;
+    private boolean likedFilmResultIsLoaded = false;
     private Gson gson;
 
     @Override
@@ -68,6 +71,23 @@ public class FilmDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (reviewsLoaded) toCreateReviewActivity();
+            }
+        });
+
+        binding.likedFilm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (likedFilmResultIsLoaded) {
+                    if (likedFilm) {
+                        DeleteFilmFromLikedFilmsThread deleteThread = new DeleteFilmFromLikedFilmsThread();
+                        deleteThread.start();
+                    } else {
+                        AddFilmToLikedFilmsThread addThread = new AddFilmToLikedFilmsThread();
+                        addThread.start();
+                    }
+                } else {
+                    Toast.makeText(FilmDetailsActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -139,6 +159,22 @@ public class FilmDetailsActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().hasChild(film.getNameOriginal())) {
+                            binding.likedFilm.setText("Удалить из избранного");
+                            likedFilm = true;
+                        } else {
+                            binding.likedFilm.setText("Добавить в избранное");
+                        }
+
+                        likedFilmResultIsLoaded = true;
+                    }
+                }
+            });
+
             database.child("Films").child("Other").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -189,6 +225,50 @@ public class FilmDetailsActivity extends AppCompatActivity {
                                 reviewsLoaded = true;
                             }
                         });
+                    }
+                }
+            });
+        }
+    }
+
+    class AddFilmToLikedFilmsThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+
+            likedFilmResultIsLoaded = false;
+
+            FilmToDB tmp = film;
+
+            tmp.setBitmap(null);
+
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).setValue(tmp).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        binding.likedFilm.setText("Удалить из избранного");
+                        likedFilm = true;
+                        likedFilmResultIsLoaded = true;
+                    }
+                }
+            });
+        }
+    }
+
+    class DeleteFilmFromLikedFilmsThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+
+            likedFilmResultIsLoaded = false;
+
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        binding.likedFilm.setText("Добавить в избранное");
+                        likedFilm = false;
+                        likedFilmResultIsLoaded = true;
                     }
                 }
             });
