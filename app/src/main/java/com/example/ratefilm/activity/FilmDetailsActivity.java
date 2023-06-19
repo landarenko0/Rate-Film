@@ -3,6 +3,7 @@ package com.example.ratefilm.activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -10,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.ratefilm.R;
 import com.example.ratefilm.data_response.FilmToDB;
 import com.example.ratefilm.data_response.Review;
 import com.example.ratefilm.data_response.User;
@@ -81,7 +83,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     addThread.start();
                 }
             } else {
-                Toast.makeText(FilmDetailsActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FilmDetailsActivity.this, getResources().getText(R.string.please_wait), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -138,7 +140,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     runOnUiThread(() -> binding.detailsPosterImage.setImageBitmap(BitmapFactory.decodeStream(stream)));
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                Log.e("poster", "Cannot download film poster");
             }
         }
     }
@@ -151,10 +153,10 @@ public class FilmDetailsActivity extends AppCompatActivity {
             database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if (task.getResult().hasChild(film.getNameOriginal())) {
-                        binding.likedFilm.setText("Удалить из избранного");
+                        binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
                         likedFilm = true;
                     } else {
-                        binding.likedFilm.setText("Добавить в избранное");
+                        binding.likedFilm.setText(getResources().getText(R.string.add_to_favorite));
                     }
 
                     likedFilmResultIsLoaded = true;
@@ -180,7 +182,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     binding.rvReviews.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
                     if (reviews.size() == 0) {
-                        runOnUiThread(() -> binding.detailsRating.setText("Нет оценок"));
+                        runOnUiThread(() -> binding.detailsRating.setText(getResources().getText(R.string.no_reviews)));
                     } else {
                         float sum = 0f;
 
@@ -193,7 +195,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     }
 
                     runOnUiThread(() -> {
-                        binding.currentUserReview.setText(hasCurrentUserLeftReview() ? "Редактировать отзыв" : "Добавить отзыв");
+                        binding.currentUserReview.setText(hasCurrentUserLeftReview() ? getResources().getText(R.string.edit_review) : getResources().getText(R.string.add_review));
                         reviewsLoaded = true;
                     });
                 }
@@ -214,9 +216,11 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).setValue(tmp).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    binding.likedFilm.setText("Удалить из избранного");
+                    binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
                     likedFilm = true;
                     likedFilmResultIsLoaded = true;
+
+                    runOnUiThread(() -> Toast.makeText(FilmDetailsActivity.this, getResources().getText(R.string.film_added_success), Toast.LENGTH_SHORT).show());
                 }
             });
         }
@@ -231,9 +235,11 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    binding.likedFilm.setText("Добавить в избранное");
+                    binding.likedFilm.setText(getResources().getText(R.string.add_to_favorite));
                     likedFilm = false;
                     likedFilmResultIsLoaded = true;
+
+                    runOnUiThread(() -> Toast.makeText(FilmDetailsActivity.this, getResources().getText(R.string.film_deleted_success), Toast.LENGTH_SHORT).show());
                 }
             });
         }

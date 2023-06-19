@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ratefilm.R;
 import com.example.ratefilm.data_response.FilmToDB;
 import com.example.ratefilm.data_response.Review;
 import com.example.ratefilm.data_response.User;
@@ -73,7 +74,7 @@ public class AddReviewActivity extends AppCompatActivity {
 
     private void saveReview() {
         if (binding.rating.getRating() == 0f) {
-            Toast.makeText(this, "Введите оценку фильму", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getText(R.string.enter_rate), Toast.LENGTH_SHORT).show();
 
             return;
         }
@@ -118,7 +119,7 @@ public class AddReviewActivity extends AppCompatActivity {
             database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).setValue(review);
             database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).setValue(review);
 
-            Toast.makeText(getApplicationContext(), "Отзыв успешно добавлен", Toast.LENGTH_SHORT).show();
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_added_success), Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -130,8 +131,7 @@ public class AddReviewActivity extends AppCompatActivity {
             database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).removeValue();
             database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).removeValue();
 
-            Toast.makeText(getApplicationContext(), "Отзыв успешно удалён", Toast.LENGTH_SHORT).show();
-
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_deleted_success), Toast.LENGTH_SHORT).show());
         }
     }
 }

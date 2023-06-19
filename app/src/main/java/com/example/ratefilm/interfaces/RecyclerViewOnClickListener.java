@@ -1,4 +1,4 @@
-package com.example.ratefilm.intefaces;
+package com.example.ratefilm.interfaces;
 
 import com.example.ratefilm.data_response.FilmToDB;
 

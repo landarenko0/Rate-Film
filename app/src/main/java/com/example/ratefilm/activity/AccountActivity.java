@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.data_response.FilmToDB;
-import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.interfaces.RecyclerViewOnClickListener;
 import com.example.ratefilm.data_response.Review;
 import com.example.ratefilm.data_response.User;
 import com.example.ratefilm.adapters.FilmsListAdapter;

@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ratefilm.R;
 import com.example.ratefilm.data_response.User;
 import com.example.ratefilm.databinding.RegistrationBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,7 +46,7 @@ public class Registration extends AppCompatActivity {
         String password = binding.registerPassword.getText().toString();
 
         if (username.equals("") || login.equals("") || password.equals("")) {
-            Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getText(R.string.enter_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -59,13 +60,13 @@ public class Registration extends AppCompatActivity {
 
                     database.child("Users").child(tmp[0]).setValue(user);
 
-                    Toast.makeText(getApplicationContext(), "Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getText(R.string.registration_success), Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(Registration.this, MainActivity.class);
                     startActivity(intent);
-                }).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Произошла ошибка. Попробуйте снова", Toast.LENGTH_LONG).show());
+                }).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.try_again), Toast.LENGTH_LONG).show());
             } else {
-                Toast.makeText(getApplicationContext(), "Пользователь с таким именем уже существует", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getText(R.string.username_already_exists), Toast.LENGTH_LONG).show();
             }
         });
     }

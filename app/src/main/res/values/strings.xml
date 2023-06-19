@@ -20,4 +20,20 @@
     <string name="user_left_review">Вы оставили отзыв</string>
     <string name="result_of_search">Результат поиска по запросу: %1$s</string>
     <string name="delete_review">Удалить отзыв</string>
+    <string name="please_wait">Пожалуйста, подождите</string>
+    <string name="film_added_success">Фильм добавлен в избранное</string>
+    <string name="film_deleted_success">Фильм успешно удалён из избранного</string>
+    <string name="review_added_success">Отзыв успешно добавлен</string>
+    <string name="review_deleted_success">Отзыв успешно удалён</string>
+    <string name="enter_rate">Введите оценку фильму</string>
+    <string name="add_to_favorite">Добавить в избранное</string>
+    <string name="delete_from_favorite">Удалить из избранного</string>
+    <string name="edit_review">Редактировать отзыв</string>
+    <string name="add_review">Добавить отзыв</string>
+    <string name="no_reviews">Нет оценок</string>
+    <string name="request_fail">Не удалось выполнить запрос</string>
+    <string name="enter_all_fields">Пожалуйста, заполните все поля</string>
+    <string name="try_again">Произошла ошибка, попробуйте снова</string>
+    <string name="registration_success">Вы успешно зарегистрировались</string>
+    <string name="username_already_exists">Пользователь с таким именем уже существует</string>
 </resources>

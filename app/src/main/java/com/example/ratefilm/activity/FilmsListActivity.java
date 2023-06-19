@@ -3,6 +3,7 @@ package com.example.ratefilm.activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -16,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ratefilm.data_response.FilmSearchResponse;
 import com.example.ratefilm.data_response.FilmToDB;
 import com.example.ratefilm.data_response.FilmsByKeyword;
-import com.example.ratefilm.intefaces.FilmsService;
+import com.example.ratefilm.interfaces.FilmsService;
 import com.example.ratefilm.R;
-import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.interfaces.RecyclerViewOnClickListener;
 import com.example.ratefilm.data_response.User;
 import com.example.ratefilm.adapters.FilmsListAdapter;
 import com.example.ratefilm.databinding.FilmListLayoutBinding;
@@ -90,7 +91,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             @Override
             public boolean onQueryTextSubmit(String s) {
                 if (userDownloaded) searchByKeywords(s);
-                else Toast.makeText(FilmsListActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(FilmsListActivity.this, getResources().getText(R.string.please_wait), Toast.LENGTH_SHORT).show();
 
                 return true;
             }
@@ -104,7 +105,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
         binding.navigationView.setNavigationItemSelectedListener(item -> {
             if (item.getItemId() == R.id.item_account) {
                 if (!userDownloaded) {
-                    Toast.makeText(FilmsListActivity.this, "Пожалйуста, подождите", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FilmsListActivity.this, getResources().getText(R.string.please_wait), Toast.LENGTH_SHORT).show();
 
                     return false;
                 }
@@ -159,7 +160,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
             @Override
             public void onFailure(@NonNull Call<FilmSearchResponse> call, @NonNull Throwable t) {
-                Toast.makeText(FilmsListActivity.this, "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FilmsListActivity.this, getResources().getText(R.string.request_fail), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -167,7 +168,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
     @Override
     public void onItemClick(List<FilmToDB> films, int position) {
         if (!userDownloaded) {
-            Toast.makeText(FilmsListActivity.this, "Пожалуйста, подождите", Toast.LENGTH_SHORT).show();
+            Toast.makeText(FilmsListActivity.this, getResources().getText(R.string.please_wait), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -196,7 +197,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                     user = task.getResult().getValue(User.class);
                     userDownloaded = true;
                 } else {
-                    Toast.makeText(getApplicationContext(), "Не удалось выполнить запрос", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> Toast.makeText(FilmsListActivity.this, getResources().getText(R.string.request_fail), Toast.LENGTH_SHORT).show());
                 }
             });
 
@@ -283,7 +284,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                         runOnUiThread(() -> recyclerView.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    Log.e("poster", "Cannot download film poster");
                 }
             }
         }

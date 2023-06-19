@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ratefilm.data_response.FilmToDB;
-import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.interfaces.RecyclerViewOnClickListener;
 import com.example.ratefilm.databinding.SearchFilmBinding;
 
 import java.util.List;

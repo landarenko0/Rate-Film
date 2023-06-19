@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.example.ratefilm.R;
 import com.example.ratefilm.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            showFilmsList();
+            toFilmsListActivity();
         }
 
         setContentView(binding.getRoot());
@@ -48,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
         String password = binding.password.getText().toString();
 
         if (login.equals("") || password.equals("")) {
-            Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getText(R.string.enter_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(login, password).addOnSuccessListener(authResult -> showFilmsList()).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Произошла ошибка, попробуйте снова", Toast.LENGTH_LONG).show());
+        mAuth.signInWithEmailAndPassword(login, password).addOnSuccessListener(authResult -> toFilmsListActivity()).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.try_again), Toast.LENGTH_LONG).show());
     }
 
     private void register() {
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void showFilmsList() {
+    private void toFilmsListActivity() {
         Intent intent = new Intent(MainActivity.this, FilmsListActivity.class);
         startActivity(intent);
     }

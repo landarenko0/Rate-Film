@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.ratefilm.data_response.FilmToDB;
 import com.example.ratefilm.R;
-import com.example.ratefilm.intefaces.RecyclerViewOnClickListener;
+import com.example.ratefilm.interfaces.RecyclerViewOnClickListener;
 import com.example.ratefilm.adapters.SearchAdapter;
 import com.example.ratefilm.databinding.SearchLayoutBinding;
 import com.google.common.reflect.TypeToken;
