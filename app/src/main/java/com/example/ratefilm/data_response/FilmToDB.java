@@ -25,7 +25,7 @@ public class FilmToDB {
         this.id = id;
         this.description = description;
 
-        if (nameOriginal == null) nameOriginal = nameRu;
+        if (nameOriginal == null || nameOriginal.equals("")) nameOriginal = nameRu;
 
         nameOriginal = nameOriginal.replace(".", "");
         nameOriginal = nameOriginal.replace("#", "");
