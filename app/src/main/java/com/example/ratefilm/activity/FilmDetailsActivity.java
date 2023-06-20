@@ -155,7 +155,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    if (task.getResult().hasChild(film.getNameOriginal())) {
+                    if (task.getResult().hasChild(String.valueOf(film.getId()))) {
                         binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
                         likedFilm = true;
                     } else {
@@ -170,8 +170,8 @@ public class FilmDetailsActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
 
-                    if (snapshot.hasChild(film.getNameOriginal())) {
-                        snapshot = snapshot.child(film.getNameOriginal());
+                    if (snapshot.hasChild(String.valueOf(film.getId()))) {
+                        snapshot = snapshot.child(String.valueOf(film.getId()));
 
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             Review review = dataSnapshot.getValue(Review.class);
@@ -217,7 +217,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             tmp.setBitmap(null);
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).setValue(tmp).addOnCompleteListener(task -> {
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(String.valueOf(film.getId())).setValue(tmp).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
                     likedFilm = true;
@@ -236,7 +236,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             likedFilmResultIsLoaded = false;
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(film.getNameOriginal()).removeValue().addOnCompleteListener(task -> {
+            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(String.valueOf(film.getId())).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     binding.likedFilm.setText(getResources().getText(R.string.add_to_favorite));
                     likedFilm = false;

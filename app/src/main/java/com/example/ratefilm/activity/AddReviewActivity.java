@@ -116,8 +116,8 @@ public class AddReviewActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).setValue(review);
-            database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).setValue(review);
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(String.valueOf(film.getId())).setValue(review);
+            database.child("Films").child("Other").child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).setValue(review);
 
             runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_added_success), Toast.LENGTH_SHORT).show());
         }
@@ -128,8 +128,8 @@ public class AddReviewActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(film.getNameOriginal()).removeValue();
-            database.child("Films").child("Other").child(film.getNameOriginal()).child(user.getEmail().split("@")[0]).removeValue();
+            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(String.valueOf(film.getId())).removeValue();
+            database.child("Films").child("Other").child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).removeValue();
 
             runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_deleted_success), Toast.LENGTH_SHORT).show());
         }
