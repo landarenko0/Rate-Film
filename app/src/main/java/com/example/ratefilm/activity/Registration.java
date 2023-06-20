@@ -1,6 +1,5 @@
 package com.example.ratefilm.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.widget.Toast;
@@ -50,31 +49,28 @@ public class Registration extends AppCompatActivity {
             return;
         }
 
-        if (username.contains(".") || username.contains("#") || username.contains("$") || username.contains("[") || username.contains("]")) {
+        login = login.toLowerCase();
+
+        final String[] tmp = {login.split("@")[0]};
+
+        if (tmp[0].contains(".") || tmp[0].contains("#") || tmp[0].contains("$") || tmp[0].contains("[") || tmp[0].contains("]")) {
             Toast.makeText(this, getResources().getText(R.string.invalid_symbols), Toast.LENGTH_SHORT).show();
             return;
         }
 
+        String finalLogin = login;
+
         database.child("Users").get().addOnSuccessListener(dataSnapshot -> {
 
             if (!dataSnapshot.hasChild(username)) {
-                mAuth.createUserWithEmailAndPassword(login, password).addOnSuccessListener(authResult -> {
-                    User user = new User(username, login);
-
-                    String[] tmp = login.split("@");
-
-                    tmp[0] = tmp[0].replace(".", "");
-                    tmp[0] = tmp[0].replace("#", "");
-                    tmp[0] = tmp[0].replace("$", "");
-                    tmp[0] = tmp[0].replace("[", "");
-                    tmp[0] = tmp[0].replace("]", "");
+                mAuth.createUserWithEmailAndPassword(finalLogin, password).addOnSuccessListener(authResult -> {
+                    User user = new User(username, finalLogin);
 
                     database.child("Users").child(tmp[0]).setValue(user);
 
                     Toast.makeText(getApplicationContext(), getResources().getText(R.string.registration_success), Toast.LENGTH_SHORT).show();
 
-                    Intent intent = new Intent(Registration.this, MainActivity.class);
-                    startActivity(intent);
+                    finish();
                 }).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.try_again), Toast.LENGTH_LONG).show());
             } else {
                 Toast.makeText(getApplicationContext(), getResources().getText(R.string.username_already_exists), Toast.LENGTH_LONG).show();

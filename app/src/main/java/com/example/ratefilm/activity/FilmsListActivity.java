@@ -122,6 +122,8 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                 binding.drawer.close();
 
+                toLoginActivity();
+
                 finish();
             }
 
@@ -178,6 +180,12 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
         intent.putExtra("filmJson", gson.toJson(film));
         intent.putExtra("userJson", gson.toJson(user));
+
+        startActivity(intent);
+    }
+
+    private void toLoginActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
 
         startActivity(intent);
     }

@@ -36,5 +36,5 @@
     <string name="try_again">Произошла ошибка, попробуйте снова</string>
     <string name="registration_success">Вы успешно зарегистрировались</string>
     <string name="username_already_exists">Пользователь с таким именем уже существует</string>
-    <string name="invalid_symbols">В имени не должно быть символов: . # $ [ ]</string>
+    <string name="invalid_symbols">В почте не должно быть символов: . # $ [ ]</string>
 </resources>

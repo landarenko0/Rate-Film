@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             toFilmsListActivity();
+
+            finish();
         }
 
         setContentView(binding.getRoot());
@@ -53,7 +55,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(login, password).addOnSuccessListener(authResult -> toFilmsListActivity()).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.try_again), Toast.LENGTH_LONG).show());
+        mAuth.signInWithEmailAndPassword(login, password).addOnSuccessListener(authResult -> {
+            toFilmsListActivity();
+
+            finish();
+        }).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.try_again), Toast.LENGTH_LONG).show());
     }
 
     private void register() {
