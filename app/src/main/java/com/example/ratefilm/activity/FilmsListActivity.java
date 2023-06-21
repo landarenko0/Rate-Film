@@ -46,8 +46,6 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
     private FilmListLayoutBinding binding;
     private FilmsService service;
-    private static final String API_KEY = "343b5488-f493-4cce-ae84-9e0f0fa4ff97";
-    private static final String BASE_URL = "https://kinopoiskapiunofficial.tech";
     private DatabaseReference database;
     private ArrayList<FilmToDB> fantasyFilms;
     private ArrayList<FilmToDB> actionFilms;
@@ -55,6 +53,19 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
     private User user;
     private Gson gson;
     private boolean userDownloaded = false;
+    private static final String API_KEY = "343b5488-f493-4cce-ae84-9e0f0fa4ff97";
+    private static final String BASE_URL = "https://kinopoiskapiunofficial.tech";
+    private static final String USER_JSON = "userJson";
+    private static final String FILMS_JSON = "filmsJson";
+    private static final String FILM_JSON = "filmJson";
+    private static final String QUERY = "query";
+    private static final String USERS = "Users";
+    private static final String FILMS = "Films";
+    private static final String FANTASY = "Fantasy";
+    private static final String ACTION = "Action";
+    private static final String THRILLER = "Thriller";
+    private static final String TAG = "posterDownloadError";
+    private static final String ERROR_MESSAGE = "Cannot download film poster";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +98,10 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
         service = retrofit.create(FilmsService.class);
 
+        binding.rvFantasyFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvActionFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvThrillerFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
         binding.svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -112,7 +127,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                 Intent intent = new Intent(FilmsListActivity.this, AccountActivity.class);
 
-                intent.putExtra("userJson", gson.toJson(user));
+                intent.putExtra(USER_JSON, gson.toJson(user));
 
                 startActivity(intent);
 
@@ -139,7 +154,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
         call.enqueue(new Callback<FilmSearchResponse>() {
             @Override
             public void onResponse(@NonNull Call<FilmSearchResponse> call, @NonNull Response<FilmSearchResponse> response) {
-                assert response.body() != null;
+                if (response.body() == null) return;
 
                 List<FilmsByKeyword> responseFilms = response.body().getFilms();
 
@@ -153,9 +168,9 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                 Intent intent = new Intent(FilmsListActivity.this, SearchActivity.class);
 
-                intent.putExtra("filmsJson", gson.toJson(filmsList));
-                intent.putExtra("query", keywords);
-                intent.putExtra("userJson", gson.toJson(user));
+                intent.putExtra(FILMS_JSON, gson.toJson(filmsList));
+                intent.putExtra(QUERY, keywords);
+                intent.putExtra(USER_JSON, gson.toJson(user));
 
                 startActivity(intent);
             }
@@ -178,8 +193,8 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
         Intent intent = new Intent(FilmsListActivity.this, FilmDetailsActivity.class);
 
-        intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("userJson", gson.toJson(user));
+        intent.putExtra(FILM_JSON, gson.toJson(film));
+        intent.putExtra(USER_JSON, gson.toJson(user));
 
         startActivity(intent);
     }
@@ -197,10 +212,11 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
             super.run();
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            assert firebaseUser != null;
-            assert firebaseUser.getEmail() != null;
 
-            database.child("Users").child(firebaseUser.getEmail().split("@")[0]).get().addOnCompleteListener(task -> {
+            if (firebaseUser == null) return;
+            if (firebaseUser.getEmail() == null) return;
+
+            database.child(USERS).child(firebaseUser.getEmail().split("@")[0]).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     user = task.getResult().getValue(User.class);
                     userDownloaded = true;
@@ -209,7 +225,7 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                 }
             });
 
-            database.child("Films").child("Fantasy").get().addOnCompleteListener(task -> {
+            database.child(FILMS).child(FANTASY).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (DataSnapshot snapshot : task.getResult().getChildren()) {
                         FilmToDB film = snapshot.getValue(FilmToDB.class);
@@ -219,14 +235,13 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                     FilmsListAdapter adapter = new FilmsListAdapter(fantasyFilms, FilmsListActivity.this);
                     binding.rvFantasyFilms.setAdapter(adapter);
-                    binding.rvFantasyFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
                     DownloadPosterThread thread = new DownloadPosterThread(fantasyFilms, binding.rvFantasyFilms);
                     thread.start();
                 }
             });
 
-            database.child("Films").child("Action").get().addOnCompleteListener(task -> {
+            database.child(FILMS).child(ACTION).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (DataSnapshot snapshot : task.getResult().getChildren()) {
                         FilmToDB film = snapshot.getValue(FilmToDB.class);
@@ -236,14 +251,13 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                     FilmsListAdapter adapter = new FilmsListAdapter(actionFilms, FilmsListActivity.this);
                     binding.rvActionFilms.setAdapter(adapter);
-                    binding.rvActionFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
                     DownloadPosterThread thread = new DownloadPosterThread(actionFilms, binding.rvActionFilms);
                     thread.start();
                 }
             });
 
-            database.child("Films").child("Thriller").get().addOnCompleteListener(task -> {
+            database.child(FILMS).child(THRILLER).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (DataSnapshot snapshot : task.getResult().getChildren()) {
                         FilmToDB film = snapshot.getValue(FilmToDB.class);
@@ -253,7 +267,6 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
 
                     FilmsListAdapter adapter = new FilmsListAdapter(thrillerFilms, FilmsListActivity.this);
                     binding.rvThrillerFilms.setAdapter(adapter);
-                    binding.rvThrillerFilms.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
                     DownloadPosterThread thread = new DownloadPosterThread(thrillerFilms, binding.rvThrillerFilms);
                     thread.start();
@@ -286,13 +299,13 @@ public class FilmsListActivity extends AppCompatActivity implements RecyclerView
                     if (stream != null) {
                         film.setBitmap(BitmapFactory.decodeStream(stream));
 
-                        assert recyclerView.getAdapter() != null;
+                        if (recyclerView.getAdapter() == null) return;
 
                         int finalI = i;
                         runOnUiThread(() -> recyclerView.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
-                    Log.e("poster", "Cannot download film poster");
+                    Log.e(TAG, ERROR_MESSAGE);
                 }
             }
         }

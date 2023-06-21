@@ -19,6 +19,7 @@ public class Registration extends AppCompatActivity {
     private RegistrationBinding binding;
     private FirebaseAuth mAuth;
     private DatabaseReference database;
+    private static final String USERS = "Users";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,13 +61,13 @@ public class Registration extends AppCompatActivity {
 
         String finalLogin = login;
 
-        database.child("Users").get().addOnSuccessListener(dataSnapshot -> {
+        database.child(USERS).get().addOnSuccessListener(dataSnapshot -> {
 
             if (!dataSnapshot.hasChild(username)) {
                 mAuth.createUserWithEmailAndPassword(finalLogin, password).addOnSuccessListener(authResult -> {
                     User user = new User(username, finalLogin);
 
-                    database.child("Users").child(tmp[0]).setValue(user);
+                    database.child(USERS).child(tmp[0]).setValue(user);
 
                     Toast.makeText(getApplicationContext(), getResources().getText(R.string.registration_success), Toast.LENGTH_SHORT).show();
 

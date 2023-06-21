@@ -42,6 +42,15 @@ public class FilmDetailsActivity extends AppCompatActivity {
     private boolean likedFilm = false;
     private boolean likedFilmResultIsLoaded = false;
     private Gson gson;
+    private static final String USER_JSON = "userJson";
+    private static final String FILM_JSON = "filmJson";
+    private static final String REVIEW_JSON = "reviewJson";
+    private static final String TAG = "posterDownloadError";
+    private static final String ERROR_MESSAGE = "Cannot download film poster";
+    private static final String USERS = "Users";
+    private static final String LIKED_FILMS = "likedFilms";
+    private static final String FILMS = "Films";
+    private static final String OTHER = "Other";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,8 +73,8 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
         gson = new Gson();
 
-        film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
-        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
+        film = gson.fromJson(getIntent().getStringExtra(FILM_JSON), FilmToDB.class);
+        user = gson.fromJson(getIntent().getStringExtra(USER_JSON), User.class);
 
         DownloadFilmReviewsThread thread = new DownloadFilmReviewsThread();
         thread.start();
@@ -87,6 +96,8 @@ public class FilmDetailsActivity extends AppCompatActivity {
                 Toast.makeText(FilmDetailsActivity.this, getResources().getText(R.string.please_wait), Toast.LENGTH_SHORT).show();
             }
         });
+
+        binding.rvReviews.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
     private void setFilmDetails() {
@@ -120,9 +131,9 @@ public class FilmDetailsActivity extends AppCompatActivity {
     private void toCreateReviewActivity() {
         Intent intent = new Intent(FilmDetailsActivity.this, AddReviewActivity.class);
 
-        intent.putExtra("reviewJson", gson.toJson(userReview));
-        intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("userJson", gson.toJson(user));
+        intent.putExtra(REVIEW_JSON, gson.toJson(userReview));
+        intent.putExtra(FILM_JSON, getIntent().getStringExtra(FILM_JSON));
+        intent.putExtra(USER_JSON, getIntent().getStringExtra(USER_JSON));
 
         startActivity(intent);
     }
@@ -143,7 +154,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     runOnUiThread(() -> binding.detailsPosterImage.setImageBitmap(bitmap));
                 }
             } catch (IOException e) {
-                Log.e("poster", "Cannot download film poster");
+                Log.e(TAG, ERROR_MESSAGE);
             }
         }
     }
@@ -153,7 +164,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(task -> {
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(LIKED_FILMS).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if (task.getResult().hasChild(String.valueOf(film.getId()))) {
                         binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
@@ -166,7 +177,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                 }
             });
 
-            database.child("Films").child("Other").get().addOnCompleteListener(task -> {
+            database.child(FILMS).child(OTHER).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
 
@@ -182,7 +193,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
                     ReviewListAdapter adapter = new ReviewListAdapter(reviews);
                     binding.rvReviews.setAdapter(adapter);
-                    binding.rvReviews.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
                     if (reviews.size() == 0) {
                         runOnUiThread(() -> binding.detailsRating.setText(getResources().getText(R.string.no_reviews)));
@@ -217,7 +227,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             tmp.setBitmap(null);
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(String.valueOf(film.getId())).setValue(tmp).addOnCompleteListener(task -> {
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(LIKED_FILMS).child(String.valueOf(film.getId())).setValue(tmp).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     binding.likedFilm.setText(getResources().getText(R.string.delete_from_favorite));
                     likedFilm = true;
@@ -236,7 +246,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
 
             likedFilmResultIsLoaded = false;
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").child(String.valueOf(film.getId())).removeValue().addOnCompleteListener(task -> {
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(LIKED_FILMS).child(String.valueOf(film.getId())).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     binding.likedFilm.setText(getResources().getText(R.string.add_to_favorite));
                     likedFilm = false;

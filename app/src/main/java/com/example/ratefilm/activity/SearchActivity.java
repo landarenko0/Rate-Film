@@ -3,6 +3,7 @@ package com.example.ratefilm.activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 
 import androidx.annotation.Nullable;
@@ -28,6 +29,12 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
     private SearchLayoutBinding binding;
     private List<FilmToDB> films;
     private Gson gson;
+    private static final String FILMS_JSON = "filmsJson";
+    private static final String QUERY = "query";
+    private static final String FILM_JSON = "filmJson";
+    private static final String USER_JSON = "userJson";
+    private static final String TAG = "posterDownloadError";
+    private static final String ERROR_MESSAGE = "Cannot download film poster";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,8 +53,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
 
         Type type = new TypeToken<List<FilmToDB>>(){}.getType();
 
-        films = gson.fromJson(getIntent().getStringExtra("filmsJson"), type);
-        String query = getIntent().getStringExtra("query");
+        films = gson.fromJson(getIntent().getStringExtra(FILMS_JSON), type);
+        String query = getIntent().getStringExtra(QUERY);
 
         SearchAdapter adapter = new SearchAdapter(films, SearchActivity.this);
         binding.requestFilms.setAdapter(adapter);
@@ -65,8 +72,8 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
 
         Intent intent = new Intent(SearchActivity.this, FilmDetailsActivity.class);
 
-        intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("userJson", getIntent().getStringExtra("userJson"));
+        intent.putExtra(FILM_JSON, gson.toJson(film));
+        intent.putExtra(USER_JSON, getIntent().getStringExtra(USER_JSON));
 
         startActivity(intent);
     }
@@ -86,13 +93,13 @@ public class SearchActivity extends AppCompatActivity implements RecyclerViewOnC
                     if (stream != null) {
                         film.setBitmap(BitmapFactory.decodeStream(stream));
 
-                        assert binding.requestFilms.getAdapter() != null;
+                        if (binding.requestFilms.getAdapter() == null) return;
 
                         int finalI = i;
                         runOnUiThread(() -> binding.requestFilms.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    Log.e(TAG, ERROR_MESSAGE);
                 }
             }
         }

@@ -20,11 +20,17 @@ import com.google.gson.Gson;
 
 public class AddReviewActivity extends AppCompatActivity {
     private AddReviewLayoutBinding binding;
-    private Gson gson;
     private Review oldReview;
     private FilmToDB film;
     private User user;
     private DatabaseReference database;
+    private static final String REVIEW_JSON = "reviewJson";
+    private static final String FILM_JSON = "filmJson";
+    private static final String USER_JSON = "userJson";
+    private static final String USERS = "Users";
+    private static final String REVIEWS = "reviews";
+    private static final String FILMS = "Films";
+    private static final String OTHER = "Other";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,13 +45,12 @@ public class AddReviewActivity extends AppCompatActivity {
     }
 
     private void init() {
-        gson = new Gson();
-
         binding = AddReviewLayoutBinding.inflate(getLayoutInflater());
 
-        oldReview = gson.fromJson(getIntent().getStringExtra("reviewJson"), Review.class);
-        film = gson.fromJson(getIntent().getStringExtra("filmJson"), FilmToDB.class);
-        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
+        Gson gson = new Gson();
+        oldReview = gson.fromJson(getIntent().getStringExtra(REVIEW_JSON), Review.class);
+        film = gson.fromJson(getIntent().getStringExtra(FILM_JSON), FilmToDB.class);
+        user = gson.fromJson(getIntent().getStringExtra(USER_JSON), User.class);
 
         if (oldReview == null)  binding.deleteReview.setVisibility(View.GONE);
 
@@ -79,13 +84,9 @@ public class AddReviewActivity extends AppCompatActivity {
             return;
         }
 
-        String reviewText = binding.addReviewText.getText().toString();
-
-        User user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
-
         film.setBitmap(null);
 
-        Review newReview = new Review(reviewText, binding.rating.getRating(), user.getUsername(), film);
+        Review newReview = new Review(binding.addReviewText.getText().toString(), binding.rating.getRating(), user.getUsername(), film);
 
         PublishReviewThread thread = new PublishReviewThread(newReview);
         thread.start();
@@ -97,8 +98,8 @@ public class AddReviewActivity extends AppCompatActivity {
         Intent intent = new Intent(AddReviewActivity.this, FilmDetailsActivity.class);
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("userJson", gson.toJson(user));
-        intent.putExtra("filmJson", getIntent().getStringExtra("filmJson"));
+        intent.putExtra(USER_JSON, getIntent().getStringExtra(USER_JSON));
+        intent.putExtra(FILM_JSON, getIntent().getStringExtra(FILM_JSON));
 
         startActivity(intent);
 
@@ -116,8 +117,8 @@ public class AddReviewActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(String.valueOf(film.getId())).setValue(review);
-            database.child("Films").child("Other").child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).setValue(review);
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(REVIEWS).child(String.valueOf(film.getId())).setValue(review);
+            database.child(FILMS).child(OTHER).child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).setValue(review);
 
             runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_added_success), Toast.LENGTH_SHORT).show());
         }
@@ -128,8 +129,8 @@ public class AddReviewActivity extends AppCompatActivity {
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").child(String.valueOf(film.getId())).removeValue();
-            database.child("Films").child("Other").child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).removeValue();
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(REVIEWS).child(String.valueOf(film.getId())).removeValue();
+            database.child(FILMS).child(OTHER).child(String.valueOf(film.getId())).child(user.getEmail().split("@")[0]).removeValue();
 
             runOnUiThread(() -> Toast.makeText(getApplicationContext(), getResources().getText(R.string.review_deleted_success), Toast.LENGTH_SHORT).show());
         }
