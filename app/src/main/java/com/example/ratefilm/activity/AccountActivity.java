@@ -36,6 +36,14 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
     private ArrayList<FilmToDB> filmsWithReview;
     private DatabaseReference database;
     private Gson gson;
+    private static final String USER_JSON = "userJson";
+    private static final String FILM_JSON = "filmJson";
+    private static final String USERS = "Users";
+    private static final String LIKED_FILMS = "likedFilms";
+    private static final String REVIEWS = "reviews";
+    private static final String TAG = "posterDownloadError";
+    private static final String ERROR_MESSAGE = "Cannot download film poster";
+    private boolean activityJustCreated = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,6 +53,9 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
         init();
 
         setContentView(binding.getRoot());
+
+        DownloadUserFilmsThread thread = new DownloadUserFilmsThread();
+        thread.start();
     }
 
     private void init() {
@@ -57,10 +68,13 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
 
         gson = new Gson();
 
-        user = gson.fromJson(getIntent().getStringExtra("userJson"), User.class);
+        user = gson.fromJson(getIntent().getStringExtra(USER_JSON), User.class);
 
         binding.accountUsername.setText(user.getUsername());
         binding.accountEmail.setText(user.getEmail());
+
+        binding.likedFilms.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        binding.filmsWithReview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
     @Override
@@ -69,8 +83,8 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
 
         Intent intent = new Intent(AccountActivity.this, FilmDetailsActivity.class);
 
-        intent.putExtra("filmJson", gson.toJson(film));
-        intent.putExtra("userJson", gson.toJson(user));
+        intent.putExtra(FILM_JSON, gson.toJson(film));
+        intent.putExtra(USER_JSON, getIntent().getStringExtra(USER_JSON));
 
         startActivity(intent);
     }
@@ -79,58 +93,70 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
     protected void onResume() {
         super.onResume();
 
-        likedFilms.clear();
-        filmsWithReview.clear();
+        if (activityJustCreated) {
+            activityJustCreated = false;
+            return;
+        }
 
-        DownloadUserLikedFilmsThread thread = new DownloadUserLikedFilmsThread();
+        DownloadUserFilmsThread thread = new DownloadUserFilmsThread();
         thread.start();
     }
 
-    private class DownloadUserLikedFilmsThread extends Thread {
+    private class DownloadUserFilmsThread extends Thread {
 
         @Override
         public void run() {
             super.run();
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("likedFilms").get().addOnCompleteListener(task -> {
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(LIKED_FILMS).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
+
+                    ArrayList<FilmToDB> checkLikedFilms = new ArrayList<>();
 
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         FilmToDB film = dataSnapshot.getValue(FilmToDB.class);
 
-                        likedFilms.add(film);
+                        checkLikedFilms.add(film);
                     }
 
-                    DownloadPosterThread thread = new DownloadPosterThread(likedFilms, binding.likedFilms);
-                    thread.start();
+                    if (checkLikedFilms.size() != likedFilms.size()) {
+                        likedFilms = checkLikedFilms;
 
-                    FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, AccountActivity.this);
-                    binding.likedFilms.setAdapter(adapter);
-                    binding.likedFilms.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                        DownloadPosterThread thread = new DownloadPosterThread(likedFilms, binding.likedFilms);
+                        thread.start();
+
+                        FilmsListAdapter adapter = new FilmsListAdapter(likedFilms, AccountActivity.this);
+                        binding.likedFilms.setAdapter(adapter);
+                    }
                 }
             });
 
-            database.child("Users").child(user.getEmail().split("@")[0]).child("reviews").get().addOnCompleteListener(task -> {
+            database.child(USERS).child(user.getEmail().split("@")[0]).child(REVIEWS).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
+
+                    ArrayList<FilmToDB> checkFilmsWithReview = new ArrayList<>();
 
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Review review = dataSnapshot.getValue(Review.class);
 
-                        assert review != null;
+                        if (review == null) return;
 
                         FilmToDB film = review.getFilm();
 
-                        filmsWithReview.add(film);
+                        checkFilmsWithReview.add(film);
                     }
 
-                    DownloadPosterThread thread = new DownloadPosterThread(filmsWithReview, binding.filmsWithReview);
-                    thread.start();
+                    if (checkFilmsWithReview.size() != filmsWithReview.size()) {
+                        filmsWithReview = checkFilmsWithReview;
 
-                    FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, AccountActivity.this);
-                    binding.filmsWithReview.setAdapter(adapter);
-                    binding.filmsWithReview.setLayoutManager(new LinearLayoutManager(AccountActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                        DownloadPosterThread thread = new DownloadPosterThread(filmsWithReview, binding.filmsWithReview);
+                        thread.start();
+
+                        FilmsListAdapter adapter = new FilmsListAdapter(filmsWithReview, AccountActivity.this);
+                        binding.filmsWithReview.setAdapter(adapter);
+                    }
                 }
             });
         }
@@ -160,13 +186,13 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
                     if (stream != null) {
                         film.setBitmap(BitmapFactory.decodeStream(stream));
 
-                        assert recyclerView.getAdapter() != null;
+                        if (recyclerView.getAdapter() == null) return;
 
                         int finalI = i;
                         runOnUiThread(() -> recyclerView.getAdapter().notifyItemChanged(finalI));
                     }
                 } catch (IOException e) {
-                    Log.e("poster", "Cannot download film poster");
+                    Log.e(TAG, ERROR_MESSAGE);
                 }
             }
         }
