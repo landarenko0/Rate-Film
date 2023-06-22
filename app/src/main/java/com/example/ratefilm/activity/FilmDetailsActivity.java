@@ -112,22 +112,6 @@ public class FilmDetailsActivity extends AppCompatActivity {
         binding.detailsFilmDescription.setText(film.getDescription());
     }
 
-    private boolean hasCurrentUserLeftReview() {
-        String username = user.getUsername();
-
-        for (int i = 0; i < reviews.size(); i++) {
-            Review review = reviews.get(i);
-
-            if (review.getUsername().equals(username)) {
-                userReview = review;
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private void toCreateReviewActivity() {
         Intent intent = new Intent(FilmDetailsActivity.this, AddReviewActivity.class);
 
@@ -187,6 +171,10 @@ public class FilmDetailsActivity extends AppCompatActivity {
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             Review review = dataSnapshot.getValue(Review.class);
 
+                            if (review != null && review.getUsername().equals(user.getUsername())) {
+                                userReview = review;
+                            }
+
                             reviews.add(review);
                         }
                     }
@@ -208,7 +196,7 @@ public class FilmDetailsActivity extends AppCompatActivity {
                     }
 
                     runOnUiThread(() -> {
-                        binding.currentUserReview.setText(hasCurrentUserLeftReview() ? getResources().getText(R.string.edit_review) : getResources().getText(R.string.add_review));
+                        binding.currentUserReview.setText(userReview == null ? getResources().getText(R.string.add_review) : getResources().getText(R.string.edit_review));
                         reviewsLoaded = true;
                     });
                 }
