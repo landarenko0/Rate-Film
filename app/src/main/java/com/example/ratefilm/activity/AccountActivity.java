@@ -1,6 +1,7 @@
 package com.example.ratefilm.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
@@ -184,7 +185,9 @@ public class AccountActivity extends AppCompatActivity implements RecyclerViewOn
                     InputStream stream = (InputStream) url.getContent();
 
                     if (stream != null) {
-                        film.setBitmap(BitmapFactory.decodeStream(stream));
+                        Bitmap bitmap = BitmapFactory.decodeStream(stream);
+
+                        film.setBitmap(bitmap);
 
                         if (recyclerView.getAdapter() == null) return;
 
